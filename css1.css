@@ -1,0 +1,11 @@
+html
+      {
+      background-color: white;
+      background-size: initial;
+      background-image: url("http://qzonestyle.gtimg.cn/qzone/qzactStatics/imgs/20171122191532_f2975b.jpg");
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+h1 {
+  color: red;
+}
