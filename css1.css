@@ -28,6 +28,15 @@ input {
     align-content: center;
 
 }
+.image_logo {
+    width: 42px;
+    height: 42px;
+    float: left;
+    margin: 15px;
+    border: 1px solid rgba(0,0,0,.03);
+    border-radius: 20px;
+    display: block;
+}
 
 #top_colum {
     color: black;
