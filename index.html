@@ -2,38 +2,31 @@
 <html lang="zh-cn">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" sizes="any" href="//www.baidu.com/img/baidu_85beaf5496f291521eb75ba38eacbd87.svg">
   <meta name="keywords" content="百度一下，你就知道，GitHub UI重构项目"/>
   <meta name="description" content="对UI的重新制作，对友情链接的重新导向，非盈利性提供百度UI新体验"/>
   <meta name="author" content="https://github.com/foryouos/baiduso.github.io"/>
   <meta http-equiv="content-Type" content="text/html;charset=utf-8"/>
   <title>百度一下，你就知道</title>
   <link rel="stylesheet" href="css1.css" >
-  <script>
-    var deviceWidth = parseInt(window.screen.width);  //获取当前设备的屏幕宽度
-    var deviceScale = deviceWidth / 640;  //得到当前设备屏幕与640之间的比例，之后我们就可以将网页宽度固定为640px
-    var ua = navigator.userAgent;
-    //获取当前设备类型（安卓或苹果）
-    if (/Android (\d+\.\d+)/.test(ua)) {
-        var version = parseFloat(RegExp.$1);
-        if (version > 2.3) {
-            document.write('<meta name="viewport" content="width=640,initial-scale=' + deviceScale + ', minimum-scale = ' + deviceScale + ', maximum-scale = ' + deviceScale + ', target-densitydpi=device-dpi">');
-        } else {
-            document.write('<meta name="viewport" content="width=640,initial-scale=0.75,maximum-scale=0.75,minimum-scale=0.75,target-densitydpi=device-dpi" />');
-        }
-    } else {
-        document.write('<meta name="viewport" content="width=640, user-scalable=no">');
-    }
-</script>
+  <script src="data_devise.js" type="text/javascript"></script>
 
 </head>
 <body>
   <div id="top_colum">
-    <a href="https://news.baidu.com">新闻</a>
-    <a href="https://www.hao123.com">hao123</a>
-    <a href="http://map.baidu.com">地图</a>
-    <a href="https://haokan.baidu.com/">视频</a>
-    <a href="http://tieba.baidu.com" target="_blank">贴吧</a>
-    <a href="http://xueshu.baidu.com" >学术</a>
+    <a href="https://music.163.com/">
+      <img src="http://s1.music.126.net/style/favicon.ico?v20180823" class="image_logo" alt="网易云音乐">
+    </a>
+    <a href="https://pan.baidu.com/">
+        <img src="https://pan.baidu.com/static/images/favicon.ico" alt="百度网盘" class="image_logo">
+    </a>
+    <a href="https://www.zhihu.com">
+      <img src="https://static.zhihu.com/heifetz/assets/apple-touch-icon-152.67c7b278.png" class="image_logo" alt="知乎">
+    </a>
+
+    <a href="https://www.iqiyi.com/">
+      <img src="http://www.iqiyipic.com/common/images/PCW-114x114.png"  class="image_logo" alt="爱奇艺">
+    </a>
     <!--<a href="">更多</a>-->
   </div>
   <div>
