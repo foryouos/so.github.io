@@ -80,10 +80,12 @@ input {
     padding: 12px 16px;
     background: #e4e4e5;
     border-radius: 10px 10px 10px 10px;
-    color: black;
+    border-style: double;
+    color: purple;
     overflow: hidden;
-    vertical-align: center;
+    vertical-align: revert;
     outline:none;
+    margin-inline-end: unset;
 }
 
 footer {
