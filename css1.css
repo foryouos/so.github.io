@@ -4,20 +4,24 @@ body {
       background-image: url("http://qzonestyle.gtimg.cn/qzone/qzactStatics/imgs/20171122191532_f2975b.jpg");
       background-size: cover ;
       background-repeat: no-repeat;
-      font-family: KaiTi;
+      font-family: 楷体;
     }
 a {
     color: black;
     font-size: 20px;
-    font-family: KaiTi;
+    font-family: 楷体;
 }
 
 a:link {
     color: black;
     text-decoration: none;
 }
+a:hover {
+    color: red;
+    text-decoration: none;
+}
 input {
-    font-family: KaiTi;
+    font-family: 楷体;
     font-size: 18px;
 }
 #logo {
@@ -76,19 +80,13 @@ input {
     padding: 12px 16px;
     background: #e4e4e5;
     border-radius: 10px 10px 10px 10px;
-    color: #222;
-    position: relative;
+    color: black;
     overflow: hidden;
     vertical-align: center;
     outline:none;
 }
 
 footer {
-    text-align: center;
+    text-align-last: right;
     color: black;
-    height: 0px;
-    bottom: 0px;
-    padding-left: 0px;
-    padding-bottom: 0px;
-
 }
