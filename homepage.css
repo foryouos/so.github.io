@@ -64,7 +64,7 @@ input {
     height: 18px;
     padding: 12px 16px;
     font-size: 16px;
-    margin: 0;
+    margin: none;
     vertical-align: center;
     outline: 0;
     box-shadow: none;
