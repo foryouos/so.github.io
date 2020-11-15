@@ -9,7 +9,7 @@ window.onload =function (){
 function so1()
     {
       document.getElementById("kw").name="q";
-      document.soform.action="https://g.teareading.app/search?";
+      document.soform.action="https://www.google.com/search?";
       document.soform.submit();
     }
 function so2()
