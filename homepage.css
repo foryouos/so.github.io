@@ -1,8 +1,15 @@
+html{
+    height: 100%;
+    width: 100%;
+}
 body {
       background-color: white;
       background-image: url("http://r.photo.store.qq.com/psc?/V51tNpWb2FonU036uaZ52J0vZx28zxke/45NBuzDIW489QBoVep5mcTjNMbkBQzyY5Qaqw24aFTPyBdKNLxhKlfV.JElQgnZJ.JNT7YS4xKnRSQs.u6yBepXALnzKlLs3U6jKy1J*XKk!/r");
       background-size: cover ;
       background-repeat: no-repeat;
+      position: relative;
+      box-sizing: border-box;
+      padding-bottom: 80px;
       font-family: 楷体;
     }
 
@@ -45,20 +52,20 @@ input {
 #top_colum,#movie {
     color: black;
     position: absolute;
-    left: 460px;
-    top: 320px;
-    z-index: 100;
+    left: 28%;
+    top: 53%;
+    z-index: 200;
     height: 60px;
     padding-left: 24px;
     font: 17px/26px Arial,sans-serif;
+
 }
 #movie{
-    top: 400px;
+    top: 68%;
 }
 #frame_so {
     text-align: center;
-    line-height:500px;
-
+    line-height:31;
 
 }
 #kw {
@@ -86,9 +93,15 @@ input {
     vertical-align: revert;
     outline:none;
 }
-
-footer {
+#footer_end{
+    position: absolute;
+    bottom: -35%;
+    width: 97%;
     line-height: 200px;
+}
+footer {
+    line-height: 50px;
+    height: 100%;
     text-align-last: right;
     color: black;
 }
