@@ -12,7 +12,6 @@ body {
       padding-bottom: 80px;
       font-family: 楷体;
     }
-
 a {
     color: black;
     font-size: 20px;
@@ -51,13 +50,14 @@ input {
 
 #top_colum,#movie {
     color: black;
-    position: absolute;
+    position: fixed;
     left: 28%;
     top: 53%;
     z-index: 200;
     height: 60px;
     padding-left: 24px;
     font: 17px/26px Arial,sans-serif;
+    position: fixed;
 
 }
 #movie{
@@ -94,8 +94,8 @@ input {
     outline:none;
 }
 #footer_end{
-    position: absolute;
-    bottom: -35%;
+    position: fixed;
+    bottom: 0%;
     width: 97%;
     line-height: 200px;
 }
