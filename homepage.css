@@ -12,17 +12,6 @@ body {
       padding-bottom: 80px;
       font-family: 楷体 !important;
     }
-@media screen and (max-width: 800px) {
-    body {
-        background-color:white;
-        background-image: url("http://r.photo.store.qq.com/psc?/V51tNpWb2FonU036uaZ52J0vZx28zxke/45NBuzDIW489QBoVep5mcQQ8B2GwmmqBm9AfQE9EHksqGUneXKJBOkGI7OhUmGq1XB4PyU8GdtPpHuNunxDmd*nVmRQ*bsOqSv76cw7k8m8!/r");
-        background-size: cover;
-        background-repeat: no-repeat;
-        position: relative;
-        box-sizing: border-box;
-    }
-
-}
 .wv-a-alarm[data-v-09fa1830] {
     font-size: 0.9em !important;
 }
@@ -126,3 +115,61 @@ footer {
     text-align-last: right;
     color: black;
 }
+@media screen and (max-width: 1060px){
+    #frame_so{
+        left: 11%;
+    }
+    #top_colum,#movie {
+        left: 20%;
+    }
+    #he-plugin-standard{
+        display:none;
+    }
+}
+@media screen and (max-width: 900px){
+    #frame_so{
+        left: 1%;
+    }
+    #top_colum,#movie {
+        left: 13%;
+    }
+
+}
+@media screen and (max-width: 819px) {
+    body {
+        background-color:white;
+        background-image: url("http://r.photo.store.qq.com/psc?/V51tNpWb2FonU036uaZ52J0vZx28zxke/45NBuzDIW489QBoVep5mcQQ8B2GwmmqBm9AfQE9EHksqGUneXKJBOkGI7OhUmGq1XB4PyU8GdtPpHuNunxDmd*nVmRQ*bsOqSv76cw7k8m8!/r");
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+        box-sizing: border-box;
+    }
+    #frame_so{
+        left: -2%;
+        top: 22%;
+    }
+    #kw{
+        width: 360px;
+        height: 28px;
+    }
+    #baidu,#google{
+        width: 80px;
+        height: 53px;
+    }
+    #top_colum,#movie {
+        left: 11%;
+        top: 50%;
+    }
+    #movie{
+        top: 68%;
+    }
+}
+@media screen and (max-width: 687px) {
+    #frame_so{
+        left: -18%;
+    }
+    #top_colum,#movie {
+        left: 3%;
+    }
+}
+
