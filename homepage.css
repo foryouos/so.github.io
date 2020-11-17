@@ -10,7 +10,7 @@ body {
       position: relative;
       box-sizing: border-box;
       padding-bottom: 80px;
-      font-family: 楷体;
+      font-family: 楷体 !important;
     }
 @media screen and (max-width: 800px) {
     body {
@@ -21,6 +21,10 @@ body {
         position: relative;
         box-sizing: border-box;
     }
+
+}
+.wv-a-alarm[data-v-09fa1830] {
+    font-size: 0.9em !important;
 }
 a {
     color: black;
