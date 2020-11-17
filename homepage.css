@@ -77,11 +77,14 @@ input {
 }
 #frame_so {
     text-align: center;
-    line-height:31;
     min-width: 830px;
     max-height: 1080px;
+    position: fixed;
+    left: 24%;
+    top:30%;
 
 }
+
 #kw {
     padding-inline-start: 52px;
     align-content: center;
