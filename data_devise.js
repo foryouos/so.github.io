@@ -21,7 +21,7 @@ WIDGET = {
   CONFIG: {
     "layout": 2,
     "width": "230",
-    "height": "291",
+    "height": "300",
     "background": 5,
     "dataColor": "50E3C2",
     "borderRadius": "10",
