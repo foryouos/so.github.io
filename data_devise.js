@@ -17,3 +17,14 @@ function so2()
       document.soform.action="https://www.baidu.com/s?";
       document.soform.submit();
     }
+WIDGET = {
+  CONFIG: {
+    "layout": 2,
+    "width": "230",
+    "height": "291",
+    "background": 5,
+    "dataColor": "50E3C2",
+    "borderRadius": "10",
+    "key": "b086b636b64a49aeb9136adfd37d3c61"
+  }
+}
