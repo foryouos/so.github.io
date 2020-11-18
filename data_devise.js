@@ -3,9 +3,6 @@ window.onload =function (){
 
     document.getElementById("baidu").onclick =so2;
 }
-
-
-
 function so1()
     {
       document.getElementById("kw").name="q";
