@@ -48,6 +48,35 @@ input {
     right: 2%;
     width: 2%;
 }
+.right_logo3{
+    position: fixed;
+    top: 1%;
+    right: 10%;
+    width: 2%;
+}
+.frame{
+  font-size:80%;
+}
+#frame_study{
+  display: none;
+  position: absolute;
+  top: 8%;
+  left: 74%;
+}
+
+.frame_study_row2{
+
+}
+.image_study{
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin: -6px;
+    border: 13px solid rgba(0,0,0,0);
+    border-radius: 20px;
+    display: block;
+
+}
 #logo {
     height: 120px;
     position: absolute;
@@ -56,7 +85,7 @@ input {
     align-content: center;
 
 }
-.image_logo {
+.image_logo{
     width: 50px;
     height: 50px;
     float: left;

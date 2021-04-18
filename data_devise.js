@@ -2,6 +2,8 @@ window.onload =function (){
     document.getElementById("google").onclick =so1;
 
     document.getElementById("baidu").onclick =so2;
+    document.querySelector(".image_study").onmouseleave=more_lease;
+    document.getElementById("study_more").onmousemove=more;
 }
 function so1()
     {
@@ -14,6 +16,16 @@ function so2()
       document.soform.action="https://www.baidu.com/s?";
       document.soform.submit();
     }
+function more_lease()
+    {
+      var obj=document.getElementById("frame_study");
+      obj.style.display="none";
+    }
+function more()
+  {
+    var obj=document.getElementById("frame_study");
+    obj.style.display="block";
+  }
 WIDGET = {
   CONFIG: {
     "layout": 2,
