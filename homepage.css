@@ -50,9 +50,9 @@ input {
 }
 .right_logo3{
     position: fixed;
-    top: 1%;
-    right: 10%;
-    width: 2%;
+    top: 61%;
+    right: -1%;
+    width: 20%;
 }
 .frame{
   font-size:80%;
@@ -60,7 +60,7 @@ input {
 #frame_study{
   display: none;
   position: absolute;
-  top: 8%;
+  top:100%;
   left: 74%;
 }
 
@@ -168,6 +168,9 @@ footer {
     }
     #he-plugin-standard{
         display:none;
+    }
+    .right_logo3{
+      display: none;
     }
 }
 @media screen and (max-width: 900px){

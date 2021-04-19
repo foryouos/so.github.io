@@ -2,8 +2,8 @@ window.onload =function (){
     document.getElementById("google").onclick =so1;
 
     document.getElementById("baidu").onclick =so2;
-    document.querySelector(".image_study").onmouseleave=more_lease;
     document.getElementById("study_more").onmousemove=more;
+    document.querySelector("#bg").onmouseleave=more_lease;
 }
 function so1()
     {
