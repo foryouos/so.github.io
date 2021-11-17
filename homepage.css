@@ -158,6 +158,9 @@ footer {
     height: 100%;
     text-align-last: right;
     color: black;
+    position: fixed;
+    right: 0px;
+    top: 700px;
 }
 @media screen and (max-width: 1060px){
     #frame_so{
