@@ -1,4 +1,5 @@
-# so.github.io
+# foryouos 导航栏
+
 UI redesign  by foryouos
 
 或许搜索有前端和后端，但是真正在发展过程中，用户交互设计。
