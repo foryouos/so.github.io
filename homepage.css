@@ -18,6 +18,7 @@ body {
 .wv-lt-refresh a[data-v-4b9dcab4]  {
     color: rgb(218 227 80) !important;
 }
+/*a标签悬浮后操作*/
 a {
     color: black;
     font-size: 20px;
@@ -36,16 +37,17 @@ input {
     font-family: 楷体;
     font-size: 18px;
 }
+/*顶部右上角内容*/
 .right_logo1{
     position: fixed;
-    top: 1%;
-    right: 6%;
+    top: 0%;
+    right: 5%;
     width: 2%;
 }
 .right_logo2{
     position: fixed;
-    top: 1%;
-    right: 2%;
+    top: 0%;
+    right: 0%;
     width: 2%;
 }
 .right_logo3{
@@ -57,26 +59,7 @@ input {
 .frame{
   font-size:80%;
 }
-#frame_study{
-  display: none;
-  position: absolute;
-  top:100%;
-  left: 74%;
-}
 
-.frame_study_row2{
-
-}
-.image_study{
-    width: 50px;
-    height: 50px;
-    float: left;
-    margin: -6px;
-    border: 13px solid rgba(0,0,0,0);
-    border-radius: 20px;
-    display: block;
-
-}
 #logo {
     height: 120px;
     position: absolute;
@@ -121,7 +104,7 @@ input {
     top:30%;
 
 }
-
+/* 搜索框*/
 #kw {
     padding-inline-start: 52px;
     align-content: center;
@@ -147,6 +130,20 @@ input {
     vertical-align: revert;
     outline:none;
 }
+/*鼠标浮动logo后放大*/
+.image_logo {
+  width: 60px; /* logo 初始宽度 */
+  height: 60px; /* logo 初始高度 */
+  transition: transform 0.2s ease-in-out; /* 添加过渡效果 */
+}
+
+.image_logo:hover {
+  transform: scale(1.2); /* 鼠标悬停时放大 1.2 倍 */
+}
+
+
+
+/*页脚*/
 #footer_end{
     position: fixed;
     bottom: 0%;
@@ -162,6 +159,9 @@ footer {
     right: 0px;
     top: 88%;
 }
+
+
+/*屏幕缩小后的变化*/
 @media screen and (max-width: 1060px){
     #frame_so{
         left: 11%;
