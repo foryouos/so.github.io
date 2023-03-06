@@ -175,6 +175,9 @@ footer {
     .right_logo3{
       display: none;
     }
+    .right_logo1{
+    right: 7%;
+    }
 }
 @media screen and (max-width: 900px){
     #frame_so{
@@ -212,6 +215,9 @@ footer {
     }
     #movie{
         top: 68%;
+    }
+    .right_logo1{
+    right: 10%;
     }
 }
 @media screen and (max-width: 687px) {
