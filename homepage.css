@@ -130,6 +130,8 @@ input {
     vertical-align: revert;
     outline:none;
 }
+
+/*鼠标浮动显示二级菜单  以网站为例*/
 /*鼠标浮动logo后放大*/
 .image_logo {
   width: 60px; /* logo 初始宽度 */
@@ -137,9 +139,36 @@ input {
   transition: transform 0.2s ease-in-out; /* 添加过渡效果 */
 }
 
+
 .image_logo:hover {
   transform: scale(1.2); /* 鼠标悬停时放大 1.2 倍 */
 }
+#wed1{
+  transition: all 10s linear; /* 添加过渡效果 */
+
+}
+
+#wed2 {
+  display: none;
+}
+#wed2 ul{
+    list-style-type: none;
+    margin-top: 0%;
+}
+
+
+#wed1:hover + #wed2 {
+  display: block;
+  transition: all 10s linear;
+}
+#wed2:hover{
+  display: block;
+  transition: all 10s linear;
+}
+
+
+
+
 
 
 
