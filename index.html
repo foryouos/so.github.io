@@ -33,27 +33,32 @@ foryouos状态栏开源项目，完全自定义化主页
   <meta http-equiv="content-Type" content="text/html;charset=utf-8"/>
   <title>foryouos导航页</title>
   <link rel="stylesheet" href="homepage.css" >
-
-  <script type="text/javascript">
-  if(/AppleWebKit.*mobile/i.test(navigator.userAgent)||(/MIDP|SymbianOS|NOKIA|SAMSUNG|LG|NEC|TCL|Alcatel|BIRD|DBTEL|Dopod|PHILIPS|HAIER|LENOVO|MOT-|Nokia|SonyEricsson|SIE-|Amoi|ZTE/.test(navigator.userAgent))){
-  if(window.location.href.indexOf("?mobile")<0){
-  try{
-  if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)){
-  window.location.href="mobile.html";
-  }else if(/iPad/i.test(navigator.userAgent)){
-  window.location.href="mobile.html";
-  }else{
-  window.location.href="index.html"
-  }
-  }catch(e){}
-  }
-  }
-  </script>
-
+  <script src="data_devise.js" type="text/javascript"></script>
+  <script src="open.js" type="text/javascript"></script>
+<!--  判断手机类型实现切换-->
   <script>
-    (function (){var text=document.getElementsByClassName(".wv-lt-refresh a[data-v-4b9dcab4]")[0];
-    text.innerText="详情";})
-  </script>
+      function browserRedirect() {
+          var sUserAgent = navigator.userAgent.toLowerCase();
+          var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+          var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+          var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+          var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+          var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+          var bIsAndroid = sUserAgent.match(/android/i) == "android";
+          var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+          var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+          if ( bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
+              //跳转移动端页面
+              window.location.href = "mobile.html";
+          } else {
+              //跳转pc端页面
+             //window.location.href = "index.html";
+          }
+      }
+      browserRedirect();
+</script>
+
+
    <!--由于页面重定向,由于github网页在特定网络下拒绝访问，不太稳定-->
   <!--
   <script type="text/javascript">
@@ -157,6 +162,7 @@ foryouos状态栏开源项目，完全自定义化主页
   <!--
   <iframe allowTransparency="true" frameborder="no" border="0" marginwidth="0" marginheight="0" width=280 height=86 src="//music.163.com/outchain/player?type=2&id=1826179038&auto=1&height=66"></iframe>
   -->
+
 
 
 <div id="footer_end">

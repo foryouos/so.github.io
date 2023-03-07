@@ -2,8 +2,8 @@ window.onload =function (){
     document.getElementById("google").onclick =so1;
 
     document.getElementById("baidu").onclick =so2;
-    document.getElementById("study_more").onmousemove=more;
-    document.querySelector("#bg").onmouseleave=more_lease;
+    // 上面搜索
+
 }
 function so1()
     {
@@ -16,16 +16,6 @@ function so2()
       document.soform.action="https://www.baidu.com/s?";
       document.soform.submit();
     }
-function more_lease()
-    {
-      var obj=document.getElementById("frame_study");
-      obj.style.display="none";
-    }
-function more()
-  {
-    var obj=document.getElementById("frame_study");
-    obj.style.display="block";
-  }
 WIDGET = {
   CONFIG: {
     "layout": 2,

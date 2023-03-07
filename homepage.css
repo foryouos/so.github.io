@@ -153,7 +153,8 @@ input {
 }
 #wed2 ul{
     list-style-type: none;
-    margin-top: 0%;
+    margin-top: 0;
+
 }
 
 
@@ -165,10 +166,7 @@ input {
   display: block;
   transition: all 10s linear;
 }
-
-
-
-
+/*实现ul的环形显示*/
 
 
 
@@ -258,3 +256,5 @@ footer {
     }
 }
 
+
+/*菜单树代码测试*/
