@@ -166,10 +166,62 @@ input {
   display: block;
   transition: all 10s linear;
 }
+
 /*实现ul的环形显示*/
+.icon-wrapper {
+  position: absolute;
+}
+
+.main-icon {
+  /* 主图标的样式 */
+}
+
+.sub-icon {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  /* 周围四个图标的公共样式 */
+  opacity: 0; /* 初始隐藏 */
+  transition: opacity 0.2s ease-in-out;
+}
+
+.sub-icon.top {
+    top: -67px;
+    left: 15%;;
+  margin-left: -15px;
+  /* 顶部图标的样式 */
+}
+
+.sub-icon.right {
+  top: 16%;
+  right: 0px;
+  margin-top: -15px;
+  /* 右侧图标的样式 */
+}
+
+.sub-icon.bottom {
+  bottom: 11px;
+  left: 14%;
+  margin-left: -15px;
+  /* 底部图标的样式 */
+}
+
+.sub-icon.left {
+  top: 17%;
+  left: -79px;
+  margin-top: -15px;
+  /* 左侧图标的样式 */
+}
+
+.icon-wrapper:hover .sub-icon {
+  opacity: 1; /* 悬停时显示 */
+    transform: translateY(-10px);
+}
 
 
 
+
+/*环形图标结束*/
 /*页脚*/
 #footer_end{
     position: fixed;
