@@ -4,19 +4,20 @@
 }
 body {
         background-color:white;
-        background-image: url("https://s1.ax1x.com/2023/03/06/ppVWm9J.png");
+        background-image: url("https://s1.ax1x.com/2023/03/07/ppZfptS.jpg");
         background-size: cover;
         background-repeat: no-repeat;
         background-position: bottom;
         position: center;
         box-sizing: border-box;
         font-size: 30px!important;
-        font-family: 楷体!important;
+        font-family: '字心坊猫' !important;
+        src:url('assert/字心坊猫.ttf')
     }
 a {
     color: black;
     font-size: 60px;
-    font-family: 楷体;
+    /*font-family: 楷体;*/
 }
 
 a:link {
@@ -30,19 +31,19 @@ a:hover {
 #frame_so {
     text-align: center;
     position: fixed;
-    left: 1px;
-    top:25%;
-    font-family: 楷体!important;
+    left: 12%;
+    bottom:28%;
+
 }
 #kw{
     width: 688px;
     height: 100px;
     padding: 12px 16px;
-    font-size: 30px;
+    font-size: 37px;
     outline: 0;
     box-shadow: none;
-    border-radius: 20px 20px 20px 20px;
-    border: 2px solid #b1ddbc;
+    border-radius: 40px 40px 40px 40px;
+    border: 12px solid #b1ddbc;
     background: none;
     color: #222;
 }
@@ -58,9 +59,9 @@ a:hover {
 }
 #footer_end{
     position: fixed;
-    bottom: 0%;
+    bottom: 2%;
     width: 97%;
-    line-height: 80px;
-    left: 16%;
+    line-height: 30px;
+    left: 21%;
 }
 
