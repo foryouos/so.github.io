@@ -74,6 +74,9 @@ div[data-v-db6ccf64] {
     align-content: center;
 
 }
+
+
+/*图片和中间*/
 .image_logo{
     width: 65px;
     height: 65px;
@@ -110,6 +113,13 @@ div[data-v-db6ccf64] {
     top:30%;
 
 }
+/*输入框阴影*/
+input[type="text"] {
+  box-shadow: 10px 9px 5px rgb(0 0 0 / 30%);
+}
+
+
+
 /* 搜索框*/
 #kw {
     padding-inline-start: 52px;
@@ -119,7 +129,7 @@ div[data-v-db6ccf64] {
     padding: 12px 16px;
     font-size: 16px;
     outline: 0;
-    box-shadow: none;
+    /*box-shadow: none;*/
     border-radius: 10px 10px 10px 10px;
     border: 2px solid #b1ddbc;
     background: none;
@@ -135,6 +145,8 @@ div[data-v-db6ccf64] {
     color: purple;
     vertical-align: revert;
     outline:none;
+    /*增加搜索框的阴影效果*/
+    box-shadow: 10px 9px 5px rgb(0 0 0 / 30%);
 }
 
 /*鼠标浮动显示二级菜单  以网站为例*/
@@ -148,6 +160,7 @@ div[data-v-db6ccf64] {
 
 .image_logo:hover {
   transform: scale(1.2); /* 鼠标悬停时放大 1.2 倍 */
+    box-shadow: 0px 0px 13px rgb(0 0 0 / 30%);
 }
 #wed1{
   transition: all 10s linear; /* 添加过渡效果 */

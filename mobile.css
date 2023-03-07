@@ -8,7 +8,7 @@ body {
         background-size: cover;
         background-repeat: no-repeat;
         background-position: bottom;
-        position: center;
+        position: relative;
         box-sizing: border-box;
         font-size: 30px!important;
         font-family: '字心坊猫' !important;
