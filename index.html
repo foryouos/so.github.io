@@ -57,24 +57,39 @@ foryouos状态栏开源项目，完全自定义化主页
       }
       browserRedirect();
 </script>
-
-
-   <!--由于页面重定向,由于github网页在特定网络下拒绝访问，不太稳定-->
-  <!--
-  <script type="text/javascript">
-    window.location.href="https://www.foryouos.com/soso/index.html";
-  </script>
-  -->
-  <!--
-  <script type="text/javascript" src="http://ip-api.com/json/"></script>
-  <script type="text/javascript" src="location.js"></script>
-  -->
+    <script>
+    WIDGET = {
+      "CONFIG": {
+        "modules": "01234",
+        "background": "5",
+        "tmpColor": "E6B8AF",
+        "tmpSize": "16",
+        "cityColor": "434343",
+        "citySize": "16",
+        "aqiColor": "FF9900",
+        "aqiSize": "16",
+        "weatherIconSize": "24",
+        "alertIconSize": "18",
+        "padding": "10px 10px 10px 10px",
+        "shadow": "1",
+        "language": "auto",
+        "borderRadius": "10",
+        "fixed": "true",
+        "vertical": "center",
+        "horizontal": "left",
+        "left": "10",
+        "top": "10",
+        "key": "9e4484e530d14a80bb7d141a4908c200"
+      }
+    }
+    </script>
+<script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script>
 </head>
 <body id="bg">
   <!--天气属性-->
-  <!--
-  <div id="he-plugin-standard"></div>
-  -->
+
+  <div id="he-plugin-simple"></div>
+
     <!--右上角内容-->
     <a href="https://mail.qq.com/" target="_blank">
       <img src="http://r.photo.store.qq.com/psc?/V51tNpWb2FonU036uaZ52J0vZx28zxke/45NBuzDIW489QBoVep5mcYflkyAoUO1cBhzhbsNwScgs.XQk.ZqYoa2v2oN4Qdw3.McHTjtFd8Wcs6buAERqoU2NbSxXVnVqwmCLNlWpcj4!/r" class="right_logo1 image_logo" alt="QQ邮箱" title="QQ邮箱">

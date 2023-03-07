@@ -37,6 +37,13 @@ input {
     font-family: 楷体;
     font-size: 18px;
 }
+/*天气不显示*/
+.s-sticker-tmp module
+{
+    visibility: hidden;
+}
+
+
 /*顶部右上角内容*/
 .right_logo1{
     position: fixed;

@@ -33,11 +33,38 @@
       }
       browserRedirect();
 </script>
+    <script>
+    WIDGET = {
+      "CONFIG": {
+        "modules": "01234",
+        "background": "5",
+        "tmpColor": "E6B8AF",
+        "tmpSize": "16",
+        "cityColor": "434343",
+        "citySize": "16",
+        "aqiColor": "FF9900",
+        "aqiSize": "16",
+        "weatherIconSize": "24",
+        "alertIconSize": "18",
+        "padding": "10px 10px 10px 10px",
+        "shadow": "1",
+        "language": "auto",
+        "borderRadius": "10",
+        "fixed": "true",
+        "vertical": "center",
+        "horizontal": "left",
+        "left": "390",
+        "top": "47",
+        "key": "9e4484e530d14a80bb7d141a4908c200"
+      }
+    }
+    </script>
+<script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script>
 </head>
 <body>
-    <div>
-        <iframe scrolling="no" src="https://tianqiapi.com/api.php?style=yd&skin=cherry" frameborder="0" width="100%" height="30" allowtransparency="true"></iframe>
-    </div>
+
+    <div id="he-plugin-simple"></div>
+
     <div>
         <form action="" id="frame_so" name="soform">
           <input type="text" name="wd" autofocus placeholder="搜索一下，你就知道" autocomplete="off" id="kw">
