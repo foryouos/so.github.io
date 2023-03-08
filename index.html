@@ -36,14 +36,14 @@ foryouos状态栏开源项目，完全自定义化主页
   <script>
       function browserRedirect() {
           var sUserAgent = navigator.userAgent.toLowerCase();
-          var bIsIpad = sUserAgent.match(/ipad/i) === "ipad";
-          var bIsIphoneOs = sUserAgent.match(/iphone os/i) === "iphone os";
-          var bIsMidp = sUserAgent.match(/midp/i) === "midp";
-          var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) === "rv:1.2.3.4";
-          var bIsUc = sUserAgent.match(/ucweb/i) === "ucweb";
-          var bIsAndroid = sUserAgent.match(/android/i) === "android";
-          var bIsCE = sUserAgent.match(/windows ce/i) === "windows ce";
-          var bIsWM = sUserAgent.match(/windows mobile/i) === "windows mobile";
+          var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+          var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+          var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+          var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+          var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+          var bIsAndroid = sUserAgent.match(/android/i) == "android";
+          var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+          var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
           if ( bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
               //跳转移动端页面
               window.location.href = "mobile.html";
@@ -53,65 +53,21 @@ foryouos状态栏开源项目，完全自定义化主页
           }
       }
       browserRedirect();
-</script>
-  <!--  百度地图API-->
-<!--  <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&type=webgl&ak=RLg7pDBclaQmre8GBG0XggZWHKMKOenh"></script>-->
+  </script>
   <link rel="stylesheet" href="index.css" >
   <script src="index.js" type="text/javascript"></script>
   <script src="open.js" type="text/javascript"></script>
-
-
-
-
-<!--    <script>-->
-<!--    WIDGET = {-->
-<!--      "CONFIG": {-->
-<!--        "modules": "01234",-->
-<!--        "background": "5",-->
-<!--        "tmpColor": "E6B8AF",-->
-<!--        "tmpSize": "16",-->
-<!--        "cityColor": "434343",-->
-<!--        "citySize": "16",-->
-<!--        "aqiColor": "FF9900",-->
-<!--        "aqiSize": "16",-->
-<!--        "weatherIconSize": "18",-->
-<!--        "alertIconSize": "18",-->
-<!--        "padding": "10px 10px 10px 10px",-->
-<!--        "shadow": "1",-->
-<!--        "language": "auto",-->
-<!--        "borderRadius": "10",-->
-<!--        "fixed": "true",-->
-<!--        "vertical": "center",-->
-<!--        "horizontal": "left",-->
-<!--        // "city": "CN101180301",-->
-<!--        "left": "40",-->
-<!--        "top": "20",-->
-<!--        "key": "043f868279c1480b8c7f89eca454fe7d"-->
-<!--      }-->
-<!--    }-->
-<!--    </script>-->
-<script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script>
+  <script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script>
 </head>
 <body id="bg">
-<!--位置-->
-  <!--天气属性-->
-
   <div id="he-plugin-simple"></div>
-
-<!--   -->
-    <!--右上角内容-->
     <a href="https://mail.qq.com/" target="_blank">
       <img src="http://r.photo.store.qq.com/psc?/V51tNpWb2FonU036uaZ52J0vZx28zxke/45NBuzDIW489QBoVep5mcYflkyAoUO1cBhzhbsNwScgs.XQk.ZqYoa2v2oN4Qdw3.McHTjtFd8Wcs6buAERqoU2NbSxXVnVqwmCLNlWpcj4!/r" class="right_logo1 image_logo" alt="QQ邮箱" title="QQ邮箱">
     </a>
     <a href="https://www.foryouos.cn" target="_blank">
       <img src="https://s1.ax1x.com/2023/03/06/ppVyhDS.png" class="right_logo2 image_logo" alt="瓶子的跋涉" title="瓶子的跋涉">
     </a>
-    <!--学习工具的内容-->
-  <!--
-    <a target="_blank" id="study_more">
-      <img src="https://www.foryouos.com/wp-content/uploads/2021/04/老师.gif" class="right_logo3" alt="study工具" title="study工具">
-    </a>
-    -->
+
 
   <!--搜索框-->
   <div id="so_fram">
