@@ -38,9 +38,23 @@ input {
     font-size: 18px;
 }
 /*天气详情不显示*/
-div[data-v-db6ccf64] {
-  visibility: hidden;
+/*div[data-v-db6ccf64] {*/
+/*  visibility: hidden;*/
+/*}*/
+/*显示天气详情，修改尺寸以及背景为空*/
+
+#weather-view-he[data-v-db6ccf64] {
+    height: 334px !important;
+    background-image: none !important;
+    box-shadow: rgb(0 0 0 / 38%) 5px 6px 14px !important;
 }
+[data-v-db6ccf64] {
+    left: -20px !important;
+}
+/*当屏幕足够小的时候，天气详情不显示*/
+/*div[data-v-db6ccf64] {*/
+/*  visibility: hidden;*/
+/*}*/
 
 
 /*顶部右上角内容*/
