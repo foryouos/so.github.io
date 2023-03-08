@@ -51,47 +51,6 @@ function handleMouseMove(e) {
 // 抓取哔嘀影视最新网址
 // 发送请求
 // 设置标头
-// var myHeaders = new Headers();
-// // user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36
-// //myHeaders.append('authority' ,'www.bdys.me')
-// myHeaders.append(
-//     'authority','www.bdys.me',
-//           'method', 'GET',
-//           'path', '/',
-//           'scheme', 'https',
-//           'accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-//             'accept-encoding', 'gzip, deflate, br',
-//             'accept-language',  'zh-CN,zh;q=0.9',
-//             'cache-control', 'max-age=0',
-//             'dnt', '1',
-//             'sec-ch-ua', '"Chromium";v="110", "Not A(Brand";v="24", "Google Chrome";v="110"',
-//             'sec-ch-ua-mobile',  '?0',
-//             'sec-ch-ua-platform', '"Windows"',
-//             'sec-fetch-dest', 'document',
-//             'sec-fetch-mode',  'navigate',
-//             'sec-fetch-site', 'none',
-//             'sec-fetch-user', '?1',
-//             'upgrade-insecure-requests', '1',
-// )
-// myHeaders.append('user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
-// fetch('https://www.bdys.me/',
-//     {
-//   method: 'GET',
-//   headers: myHeaders,
-//           })
-//   .then(function(response) {
-//     if (response.ok) {
-//       return response.text();
-//     }
-//     throw new Error('Network response was not ok.');
-//   })
-//   .then(function(text) {
-//     console.log(text);
-//   })
-//   .catch(function(error) {
-//     console.error('There was a problem with the fetch operation:', error);
-//   });
-
 
 
 // 点击class对象跳转页面

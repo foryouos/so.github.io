@@ -32,25 +32,18 @@ foryouos状态栏开源项目，完全自定义化主页
   <meta name="author" content="https://github.com/foryouos/so.github.io"/>
   <meta http-equiv="content-Type" content="text/html;charset=utf-8"/>
   <title>foryouos导航页</title>
-  <!--  百度地图API-->
-<!--  <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&type=webgl&ak=RLg7pDBclaQmre8GBG0XggZWHKMKOenh"></script>-->
-  <link rel="stylesheet" href="index.css" >
-  <script src="index.js" type="text/javascript"></script>
-  <script src="open.js" type="text/javascript"></script>
-
-
-<!--  判断手机类型实现切换-->
+  <!--  判断手机类型实现切换-->
   <script>
       function browserRedirect() {
           var sUserAgent = navigator.userAgent.toLowerCase();
-          var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
-          var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
-          var bIsMidp = sUserAgent.match(/midp/i) == "midp";
-          var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
-          var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
-          var bIsAndroid = sUserAgent.match(/android/i) == "android";
-          var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
-          var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+          var bIsIpad = sUserAgent.match(/ipad/i) === "ipad";
+          var bIsIphoneOs = sUserAgent.match(/iphone os/i) === "iphone os";
+          var bIsMidp = sUserAgent.match(/midp/i) === "midp";
+          var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) === "rv:1.2.3.4";
+          var bIsUc = sUserAgent.match(/ucweb/i) === "ucweb";
+          var bIsAndroid = sUserAgent.match(/android/i) === "android";
+          var bIsCE = sUserAgent.match(/windows ce/i) === "windows ce";
+          var bIsWM = sUserAgent.match(/windows mobile/i) === "windows mobile";
           if ( bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM) {
               //跳转移动端页面
               window.location.href = "mobile.html";
@@ -61,6 +54,14 @@ foryouos状态栏开源项目，完全自定义化主页
       }
       browserRedirect();
 </script>
+  <!--  百度地图API-->
+<!--  <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&type=webgl&ak=RLg7pDBclaQmre8GBG0XggZWHKMKOenh"></script>-->
+  <link rel="stylesheet" href="index.css" >
+  <script src="index.js" type="text/javascript"></script>
+  <script src="open.js" type="text/javascript"></script>
+
+
+
 
 <!--    <script>-->
 <!--    WIDGET = {-->
@@ -103,7 +104,7 @@ foryouos状态栏开源项目，完全自定义化主页
       <img src="http://r.photo.store.qq.com/psc?/V51tNpWb2FonU036uaZ52J0vZx28zxke/45NBuzDIW489QBoVep5mcYflkyAoUO1cBhzhbsNwScgs.XQk.ZqYoa2v2oN4Qdw3.McHTjtFd8Wcs6buAERqoU2NbSxXVnVqwmCLNlWpcj4!/r" class="right_logo1 image_logo" alt="QQ邮箱" title="QQ邮箱">
     </a>
     <a href="https://www.foryouos.cn" target="_blank">
-      <img src="https://s1.ax1x.com/2023/03/06/ppVyhDS.png" class="right_logo2 image_logo" alt="瓶子的跋涉" title="瓶子的跋涉" class="right_logo2">
+      <img src="https://s1.ax1x.com/2023/03/06/ppVyhDS.png" class="right_logo2 image_logo" alt="瓶子的跋涉" title="瓶子的跋涉">
     </a>
     <!--学习工具的内容-->
   <!--
@@ -111,7 +112,7 @@ foryouos状态栏开源项目，完全自定义化主页
       <img src="https://www.foryouos.com/wp-content/uploads/2021/04/老师.gif" class="right_logo3" alt="study工具" title="study工具">
     </a>
     -->
-  </div>
+
   <!--搜索框-->
   <div id="so_fram">
     <form action="" id="frame_so" name="soform">
