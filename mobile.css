@@ -23,6 +23,14 @@ a {
 div[data-v-db6ccf64] {
   visibility: hidden;
 }
+/*调整天气位置*/
+#he-plugin-simple[data-v-41ba7e2c] {
+    left: 123px !important;
+}
+
+
+
+
 
 a:link {
     color: black;
@@ -66,6 +74,28 @@ input[type="text"] {
     font-size: 28px;
     background: none;
 }
+
+/*画廊CSS*/
+ .gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+   top: 44%;
+  position: fixed;
+  left: 16%;
+}
+
+.gallery img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  margin: 10px;
+
+    border-radius: 100px;
+}
+
+
+/*底部*/
 #footer_end{
     position: fixed;
     bottom: 2%;

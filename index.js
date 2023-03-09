@@ -15,17 +15,6 @@ function so2()
       document.soform.action="https://www.baidu.com/s?";
       document.soform.submit();
     }
-WIDGET = {
-  CONFIG: {
-    "layout": 2,
-    "width": "230",
-    "height": "295",
-    "background": 5,
-    "dataColor": "50E3C2",
-    "borderRadius": "10",
-    "key": "b086b636b64a49aeb9136adfd37d3c61"
-  }
-}
 //环形图标
 
 
@@ -95,7 +84,7 @@ var searchXian = "新乡";
 fetch("city.json")
     .then(function (response) {
       if(response.status === 200){
-        console.log("读取城市数据成功")
+        // console.log("读取城市数据成功")
         return response.json();
       }
       else{
@@ -109,25 +98,25 @@ fetch("city.json")
       {
         if(data[i].zh === searchZh )
         {
-          console.log(data[i]);
+          // console.log(data[i]);
           for(let j = 0; j < data[i].children.length;j++)
           {
              if(data[i].children[j].zh === searchShi)
                {
-                 console.log(data[i].children[j]);
+                 // console.log(data[i].children[j]);
                  for(let k = 0 ; k < data[i].children[j].children.length; k++ )
                  {
                      if(data[i].children[j].children[k].zh === searchXian)
                      {
-                        console.log("县数据找到成功")
+                        // console.log("县数据找到成功")
                         // console.log(data[i].children[j].children[k]);
                         // console.log("CN"+ data[i].children[j].children[k].id);
                         // return data[i].children[j].children[k].id
                         var loc_id=String("CN"+data[i].children[j].children[k].id);
-                        console.log(String(loc_id));
+                        // console.log(String(loc_id));
                      }
                      else {
-                       console.log(k);
+                       // console.log(k);
                      }
                  }
                }
