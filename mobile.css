@@ -4,7 +4,7 @@
 }
 body {
         background-color:white;
-        background-image: url("https://api.timelessq.com/wallpaper");
+        background-image: url("https://i.imgtg.com/2023/03/24/9IkZB.jpg");
         background-size: cover;
         background-repeat: no-repeat;
         background-position: bottom;
@@ -25,7 +25,7 @@ div[data-v-db6ccf64] {
 }
 /*调整天气位置*/
 #he-plugin-simple[data-v-41ba7e2c] {
-    left: 123px !important;
+    left: 190px !important;
 }
 
 
@@ -90,8 +90,8 @@ input[type="text"] {
   height: 200px;
   object-fit: cover;
   margin: 10px;
-
-    border-radius: 100px;
+  /*  搜索栏下的弧度*/
+  border-radius: 50px;
 }
 
 
@@ -101,6 +101,6 @@ input[type="text"] {
     bottom: 2%;
     width: 97%;
     line-height: 30px;
-    left: 21%;
+    left: 32%;
 }
 
