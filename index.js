@@ -70,17 +70,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+
 // 修改和风天气
-// 使用百度API获取位置
-
-
+// 使用https://ip.zxinc.org/api.php?type=json获取ip位置
 //城市id
 loc_id = "0";  //初始值是新乡
-var searchZh = "河南";
-var searchShi = "新乡";
-var searchXian = "新乡";
+let searchZh = "河南";
+let searchShi = "开封";
+let searchXian = "";
 
-// 获取天气ID
+fetch('https://ip.zxinc.org/api.php?type=json')
+  .then(response => response.json())
+  .then(data =>
+  {
+      const loc=data["data"]["country"]
+      const parts = loc.split(/省|市/);
+      console.log(parts)
+      searchZh = parts[0];
+      searchShi = parts[1];
+      searchXian = parts[1];
+      // console.log(parts[0])
+      // console.log(parts[1])
+    // 获取天气ID
 fetch("city.json")
     .then(function (response) {
       if(response.status === 200){
@@ -159,6 +170,16 @@ fetch("city.json")
           }
         }
     })
+
+
+
+
+
+  })
+
+  .catch(error => console.error(error))
+
+
 
 
 
