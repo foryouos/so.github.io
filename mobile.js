@@ -1,7 +1,7 @@
 window.onload =function (){
-    document.getElementById("google").onclick =so1;
-
-    document.getElementById("baidu").onclick =so2;
+    // document.getElementById("google").onclick =so1;
+    //
+    // document.getElementById("baidu").onclick =so2;
 }
 function so1()
     {
@@ -113,6 +113,7 @@ fetch("city.json")
           }
         }
     })
+      console.log("获取天气参数完成");
 
   })
 

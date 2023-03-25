@@ -170,11 +170,6 @@ fetch("city.json")
           }
         }
     })
-
-
-
-
-
   })
 
   .catch(error => console.error(error))
