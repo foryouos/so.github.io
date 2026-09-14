@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="17 9 30 52" width="30" height="52" role="img" aria-label="瓶子的跋涉">
+  <!-- 源自 E:/Foryouos/main.io/favicon.svg（官方品牌标）。形状数据原样保留，做了三处调整：
+       1. 去掉原来那块暖黄渐变圆角底 <rect width=64 height=64 rx=15>，改为透明底，
+          让瓶子直接落在页面背景上；
+       2. viewBox 从 0 0 64 64 收到 17 9 30 52（瓶子 + 描边外扩 1.5 单位），
+          去掉四周留白后，同样的显示高度能画得更清楚；
+       3. 配色换成导航页的主题色系：线条深绿 #2f7a45、木塞与高光浅绿 #b1ddbc、
+          瓶身 82% 半透明白（透出背景又有玻璃感）。
+          原来的奶油瓶身 #FFEFD4 + 砖红描边 #C7541A 在浅色背景上会糊成一片。 -->
+  <path d="M26 20h12v9.5c0 3.2 1.6 4.6 3.4 6.6 2.1 2.4 3.6 4.4 3.6 8V54c0 2.6-2.1 4.6-4.7 4.6H23.7C21.1 58.6 19 56.6 19 54V44.1c0-3.6 1.5-5.6 3.6-8 1.8-2 3.4-3.4 3.4-6.6V20Z"
+        fill="#FFFFFF" fill-opacity=".82" stroke="#2f7a45" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24.5 19.5h15" fill="none" stroke="#2f7a45" stroke-width="3" stroke-linecap="round"/>
+  <path d="M26.5 19.5V13c0-1.1.9-2 2-2h7c1.1 0 2 .9 2 2v6.5Z" fill="#b1ddbc" stroke="#2f7a45"
+        stroke-width="2.6" stroke-linejoin="round"/>
+  <path d="M24 30v20" fill="none" stroke="#b1ddbc" stroke-width="3.4" stroke-linecap="round" opacity=".95"/>
+  <g fill="none" stroke="#2f7a45" stroke-width="2.8" stroke-linecap="round">
+    <path d="M26.5 40.5q2.8 -4 5.6 0"/>
+    <path d="M34.5 40.5q2.8 -4 5.6 0"/>
+    <path d="M28 48.5q4.5 4 9 0"/>
+  </g>
+</svg>

@@ -54,11 +54,10 @@ foryouos状态栏开源项目，完全自定义化主页
 </head>
 <body id="bg">
   <div id="he-plugin-simple"></div>
-    <a href="https://mail.qq.com/" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YQ96P.png" class="right_logo1 image_logo" alt="QQ邮箱" title="QQ邮箱">
-    </a>
-    <a href="https://www.foryouos.cn" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YQ2kb.png" class="right_logo2 image_logo" alt="瓶子的跋涉" title="瓶子的跋涉">
+    <!-- 右上角：foryouos 官网（瓶子的跋涉）的品牌标 —— 官方瓶子的形状，去掉暖黄底改透明，
+         配色换成站点主题的绿白系、尺寸缩小一档，详见 assert/brand-foryouos.svg 里的注释 -->
+    <a href="https://www.foryouos.cn/" target="_blank">
+      <img src="assert/brand-foryouos.svg" class="right_logo2" alt="瓶子的跋涉" title="瓶子的跋涉">
     </a>
 
 
@@ -84,42 +83,79 @@ foryouos状态栏开源项目，完全自定义化主页
   </div>
   <!--搜索框下面的内容-->
   <div id="top_colum">
-    <a href="https://open.163.com/" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YcAiD.png" class="image_logo" alt="网易公开课" title="网易公开课">
-    </a>
+    <!-- ===== 学习组：主图标中国大学MOOC，悬浮后子项绕主图标环形展开 =====
+         位置用 --a（角度）+ --i（弹出次序）描述，三个方向互成 120°：
+         -90° 正上 / 150° 左下 / 30° 右下。
+         加站点只需复制一条 .sub-icon 并改 --a、--i。
+         图标统一用 assert/ 下的官方图标（见项目笔记里各站点的来源）。 -->
+    <div class="icon-wrapper">
+      <a class="main-icon" href="https://www.icourse163.org/" target="_blank" rel="noopener" title="中国大学MOOC">
+        <img src="assert/brand-icourse163.png" alt="中国大学MOOC" title="中国大学MOOC" class="image_logo">
+      </a>
+      <a class="sub-icon" style="--a: -90deg; --i: 0" href="https://open.163.com/" target="_blank"
+         rel="noopener" aria-label="网易公开课">
+        <img src="assert/brand-netease-open.png" alt="">
+        <span class="sub-label">网易公开课</span>
+      </a>
+      <a class="sub-icon" style="--a: 150deg; --i: 1" href="https://www.xuetangx.com/" target="_blank"
+         rel="noopener" aria-label="学堂在线">
+        <img src="assert/brand-xuetangx.png" alt="">
+        <span class="sub-label">学堂在线</span>
+      </a>
+      <a class="sub-icon" style="--a: 30deg; --i: 2" href="http://www.chinesemooc.org/" target="_blank"
+         rel="noopener" aria-label="华文慕课">
+        <!-- 华文慕课官网只提供横版字标、没有方形图标，这里先用文字标补位（透明底）。
+             拿到官方方形图标后，把这段 <svg> 整体换成 <img src="assert/brand-chinesemooc.png" alt=""> 即可 -->
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <text x="12" y="16.2" text-anchor="middle" font-family="楷体, KaiTi, serif"
+                font-size="9.5" font-weight="700" fill="#b81c22">华文</text>
+        </svg>
+        <span class="sub-label">华文慕课</span>
+      </a>
+    </div>
+
     <a href="https://photo.baidu.com/" target="_blank">
         <img src="https://i.imgtg.com/2023/03/09/YcDna.png" alt="一刻相册" class="image_logo" title="一刻相册">
     </a>
     <a href="https://www.zhihu.com" target="_blank">
       <img src="https://i.imgtg.com/2023/03/09/YcRQs.png" class="image_logo" alt="知乎" title="知乎">
     </a>
-    <a href="https://www.icourse163.org/" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YctCK.png" class="image_logo" alt="中国大学MOOC" title="中国大学MOOC">
-    </a>
-    <a href="https://www.douban.com/" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YcPAB.png" class="image_logo" alt="豆瓣" title="豆瓣">
-    </a>
-    <a class="icon-wrapper" target="_blank" >
-      <div class="main-icon">
-        <!-- 主图标 -->
-        <img src="https://i.imgtg.com/2023/03/09/YcJqg.png" alt="茶杯狐" title="茶杯狐" class="image_logo">
-      </div>
-      <div class="sub-icon top">
-        <!-- 顶部图标 -->
-        <img src="https://i.imgtg.com/2023/03/09/YcNQ1.png" alt="哔嘀影视" class="image_logo" title="哔嘀影视">
-      </div>
-      <div class="sub-icon right">
-        <!-- 右侧图标 -->
-        <img src="https://i.imgtg.com/2023/03/09/YciVr.png" alt="网飞" class="image_logo" title="网飞影视">
-      </div>
-      <div class="sub-icon bottom">
-        <!-- 底部图标 -->
-        <img src="https://i.imgtg.com/2023/03/09/YcK4F.png" alt="抖音" title="抖音" class="image_logo">
-      </div>
-      <div class="sub-icon left">
-        <!-- 左侧图标 -->
-        <img src="https://i.imgtg.com/2023/03/09/YcZ26.png" alt="爱奇艺" title="爱奇艺" class="image_logo">
-      </div>
+
+    <!-- ===== 视频组：主图标豆瓣，悬浮后 爱奇艺 / 腾讯视频 / B站 / CCTV 绕主图标展开 =====
+         四个子项取对角四向（-135/-45/45/135），不用正上正下：
+         正下会撞到下一行 #movie（同级 z-index 200 且 DOM 更靠后，会盖住子项），
+         对角排布的横向外扩也更小（0.707R），不会压到左边的知乎。
+         图标统一用 assert/ 下的官方图标（见项目笔记里各站点的来源）。 -->
+    <div class="icon-wrapper">
+      <a class="main-icon" href="https://www.douban.com/" target="_blank" rel="noopener" title="豆瓣">
+        <img src="assert/brand-douban.png" alt="豆瓣" title="豆瓣" class="image_logo">
+      </a>
+      <a class="sub-icon" style="--a: -135deg; --i: 0" href="https://v.qq.com/" target="_blank"
+         rel="noopener" aria-label="腾讯视频">
+        <img src="assert/brand-tencent-video.svg" alt="">
+        <span class="sub-label">腾讯视频</span>
+      </a>
+      <a class="sub-icon" style="--a: -45deg; --i: 1" href="https://www.iqiyi.com/" target="_blank"
+         rel="noopener" aria-label="爱奇艺">
+        <img src="assert/brand-iqiyi.png" alt="">
+        <span class="sub-label">爱奇艺</span>
+      </a>
+      <a class="sub-icon" style="--a: 45deg; --i: 2" href="https://www.bilibili.com/" target="_blank"
+         rel="noopener" aria-label="哔哩哔哩">
+        <img src="assert/brand-bilibili.png" alt="">
+        <span class="sub-label">B站</span>
+      </a>
+      <a class="sub-icon" style="--a: 135deg; --i: 3" href="https://www.cctv.com/" target="_blank"
+         rel="noopener" aria-label="央视网">
+        <img src="assert/brand-cctv.png" alt="">
+        <span class="sub-label">CCTV</span>
+      </a>
+    </div>
+
+    <!-- Canva 可画：官网只发布「渐变圆角方块」版图标，用户要求背景透明，
+         所以取它 CDN 上的官方**字标 SVG**（80×30，透明底，紫色→青色渐变）。 -->
+    <a href="https://www.canva.cn/" target="_blank" title="Canva 可画">
+      <img src="assert/brand-canva.svg" class="image_logo" alt="Canva 可画">
     </a>
 
 
@@ -129,55 +165,85 @@ foryouos状态栏开源项目，完全自定义化主页
       <img src="https://i.imgtg.com/2023/03/09/Yc7rG.png" class="image_logo" alt="CSDN" title="CSDN">
     </a>
 
-    <a href="https://weread.qq.com/" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YcmVl.png" class="image_logo" alt="微信读书" title="微信读书">
-    </a>
-    <a href="https://tool.browser.qq.com/" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/Ychgc.png" class="image_logo" alt="帮小忙" title="帮小忙工具">
-    </a>
+    <!-- ===== 读书组：主图标微信读书，悬浮后在正下方弹出「博看书苑」 =====
+         单个子项取正下：#movie 下方是空的（页脚已删），不会像 #top_colum 那样撞到下一行；
+         也不往左右扩，免得压到右边 AI 组的子项。 -->
+    <div class="icon-wrapper">
+      <a class="main-icon" href="https://weread.qq.com/" target="_blank" rel="noopener" title="微信读书">
+        <img src="assert/brand-weread.png" alt="微信读书" title="微信读书" class="image_logo">
+      </a>
+      <a class="sub-icon" style="--a: 90deg; --i: 0"
+         href="https://zq.bookan.com.cn/?t=index&amp;id=20999" target="_blank"
+         rel="noopener" aria-label="博看书苑">
+        <img src="assert/brand-bookan.png" alt="">
+        <span class="sub-label">博看书苑</span>
+      </a>
+    </div>
+
+    <!-- ===== AI 工具栏：主图标进 WorkBuddy 网页版，悬浮后 DeepSeek / 豆包 / ChatGPT / Gemini 环绕弹出 =====
+         全站统一角度规则：4 项组一律用对角四向 -135/-45/45/135（从左上顺时针），
+         3 项组用 -90/30/150，单子项用 90 正下。
+         4 项组**不用正交四向**：正交时左右两个子项会伸到同行相邻图标上，
+         对角方向的横向外扩只有 0.707R，正好避开。
+         与右边的「网站开发工具」组隔着一个图标（232px），两组子项不会互相压住。 -->
+    <div class="icon-wrapper">
+      <a class="main-icon" href="https://www.workbuddy.cn/" target="_blank" rel="noopener" title="WorkBuddy 网页版">
+        <img src="assert/brand-workbuddy.svg" alt="WorkBuddy" title="WorkBuddy 网页版" class="image_logo">
+      </a>
+      <a class="sub-icon" style="--a: -135deg; --i: 0" href="https://chat.deepseek.com/" target="_blank"
+         rel="noopener" aria-label="DeepSeek">
+        <img src="assert/brand-deepseek.svg" alt="">
+        <span class="sub-label">DeepSeek</span>
+      </a>
+      <a class="sub-icon" style="--a: -45deg; --i: 1" href="https://www.doubao.com/chat/" target="_blank"
+         rel="noopener" aria-label="豆包">
+        <img src="assert/brand-doubao.png" alt="">
+        <span class="sub-label">豆包</span>
+      </a>
+      <a class="sub-icon" style="--a: 45deg; --i: 2" href="https://chatgpt.com/" target="_blank"
+         rel="noopener" aria-label="ChatGPT">
+        <img src="assert/brand-chatgpt.svg" alt="">
+        <span class="sub-label">ChatGPT</span>
+      </a>
+      <a class="sub-icon" style="--a: 135deg; --i: 3" href="https://gemini.google.com/" target="_blank"
+         rel="noopener" aria-label="Gemini">
+        <img src="assert/brand-gemini.png" alt="">
+        <span class="sub-label">Gemini</span>
+      </a>
+    </div>
+    <!-- 帮小忙（tool.browser.qq.com）已按需求删除 -->
     <a href="https://music.163.com/" target="_blank">
       <img src="https://i.imgtg.com/2023/03/09/YcybP.png"  class="image_logo" alt="网易云音乐" title="网易云音乐">
     </a>
-    <a href="https://www.bilibili.com/" target="_blank" >
-      <img src="https://i.imgtg.com/2023/03/09/Ycgmb.png"  class="image_logo" alt="哔哩哔哩" title="哔哩哔哩">
-    </a>
-    <div id="wed1">
-      <a target="_blank" >
-          <img src="https://i.imgtg.com/2023/03/09/Yce3I.png" class="image_logo" alt="网站开发工具" title="网站开发工具" >
+    <!-- B站已整合进上方「视频组」的悬浮项，主行不再重复放一份 -->
+    <!-- ===== 网站开发工具：主图标点进 Cloudflare，悬浮后四个入口绕主图标弹出 =====
+         与 AI 组同规则：4 项用对角四向 -135/-45/45/135（从左上顺时针）。 -->
+    <div class="icon-wrapper">
+      <a class="main-icon" href="https://dash.cloudflare.com/" target="_blank" rel="noopener" title="Cloudflare">
+        <img src="assert/brand-cloudflare.png" alt="Cloudflare" title="Cloudflare" class="image_logo">
+      </a>
+      <a class="sub-icon" style="--a: -135deg; --i: 0" href="https://dash.cloudflare.com/" target="_blank"
+         rel="noopener" aria-label="Cloudflare Page">
+        <img src="assert/brand-cloudflare.png" alt="">
+        <span class="sub-label">Page</span>
+      </a>
+      <a class="sub-icon" style="--a: -45deg; --i: 1" href="https://imgtg.com/" target="_blank"
+         rel="noopener" aria-label="图床">
+        <img src="assert/brand-imgtg.png" alt="">
+        <span class="sub-label">图床</span>
+      </a>
+      <a class="sub-icon" style="--a: 45deg; --i: 2" href="https://hitokoto.cn/" target="_blank"
+         rel="noopener" aria-label="一言">
+        <img src="assert/brand-hitokoto.png" alt="">
+        <span class="sub-label">一言</span>
+      </a>
+      <a class="sub-icon" style="--a: 135deg; --i: 3" href="https://www.iconfont.cn/" target="_blank"
+         rel="noopener" aria-label="iconfont 矢量图">
+        <img src="assert/brand-iconfont.svg" alt="">
+        <span class="sub-label">矢量图</span>
       </a>
     </div>
-    <div  id="wed2">
-
-      <ul>
-        <li>
-<!--          <img src="https://s1.ax1x.com/2023/03/07/ppZokdI.png" class="image_logo" alt="网易公开课" title="网易公开课">-->
-            <a href="https://imgtg.com/" target="_blank" >图床</a>
-
-        </li>
-        <li>
-          <a href="https://dash.cloudflare.com/" target="_blank" >Page</a>
-        </li>
-        <li>
-          <a href="https://hitokoto.cn/" target="_blank" >一言</a>
-        </li>
-        <li>
-          <a href="https://www.iconfont.cn/" target="_blank" >矢量图</a>
-        </li>
-      </ul>
-    </div>
   </div>
-
-
-<div id="footer_end">
-    <footer>
-    <a href="https://www.blog.foryouos.cn" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/24/9ILcG.png" class="image_logo" alt="博客" title="博客">
-    </a>
-    <a href="https://github.com/foryouos" target="_blank">
-      <img src="https://i.imgtg.com/2023/03/09/YQIAs.png" class="image_logo" alt="Github" title="Github">
-    </a>
-  </footer>
-</div>
 
 </body>
 </html>

@@ -57,18 +57,23 @@ input {
 /*}*/
 
 
-/*顶部右上角内容*/
-.right_logo1{
-    position: fixed;
-    top: 0%;
-    right: 5%;
-    width: 2%;
-}
+/*右上角：foryouos 品牌标（瓶子），透明底。
+  不再复用 .image_logo —— 那套会给它 65px 见方 + 13px 透明边框 + 15px 外边距，
+  和“小一点、贴角”的诉求正相反；这里独立控制尺寸与边距。
+  按高度定尺寸（瓶子是细长的，30:52），width:auto 让它等比缩放。 */
 .right_logo2{
     position: fixed;
-    top: 0%;
-    right: 0%;
-    width: 2%;
+    top: clamp(12px, 1.1vw, 22px);
+    right: clamp(14px, 1.2vw, 24px);
+    height: clamp(34px, 2.2vw, 46px);
+    width: auto;
+    display: block;
+    opacity: .88;
+    transition: transform .2s ease, opacity .2s ease;
+}
+.right_logo2:hover{
+    opacity: 1;
+    transform: scale(1.1);
 }
 .right_logo3{
     position: fixed;
@@ -363,7 +368,7 @@ input[type="text"] {
 .image_logo {
   width: 60px; /* logo 初始宽度 */
   height: 60px; /* logo 初始高度 */
-  transition: transform 0.2s ease-in-out; /* 添加过渡效果 */
+  transition: transform 0.2s ease-in-out, filter 0.2s ease; /* 放大与投影一起过渡 */
 }
 
 /* 图标行随视口连续缩放（只作用于 #top_colum / #movie，不波及页脚与右上角标）。
@@ -379,105 +384,198 @@ input[type="text"] {
 }
 
 
+/* 悬停反馈：放大 + 沿图形轮廓投影。
+   投影用 filter: drop-shadow 而不是 box-shadow —— box-shadow 跟随元素盒子，
+   会给透明底的 LOGO 套上一个圆角矩形的色块/晕，看着就像多了一层背景；
+   drop-shadow 是贴着 LOGO 的实际形状算的，透明处不投影。 */
 .image_logo:hover {
-  transform: scale(1.2); /* 鼠标悬停时放大 1.2 倍 */
-    box-shadow: 0px 0px 13px rgb(0 0 0 / 30%);
+  transform: scale(1.2);
+  filter: drop-shadow(0 6px 12px rgb(28 60 40 / 42%));
 }
-#wed1{
-  transition: all 10s linear; /* 添加过渡效果 */
+/* ============ 网站开发工具 ============
+   已并入上面那套「图标环」：主图标 = Cloudflare（点击进 dash.cloudflare.com），
+   四个入口各占一个方向（0/90/180/270）绕主图标四周弹出，样式全部复用 .icon-wrapper / .sub-icon。
+   原先这里那一整套 #wed1 / #wed2 玻璃卡片样式（默认 ul、display 切换、transition: all 10s、
+   以及靠兄弟选择器撑 hover 的写发）整块删除 —— 换成环形后不再需要，也就顺带没有了闪断。 */
 
-}
+/* ============ 图标环：主图标 + 悬浮后绕主图标环形展开的子项 ============
+   页面上有两组（学习组=中国大学MOOC，视频组=爱奇艺），结构完全一致。
+   原实现的问题（一次修掉）：
+   1. 子项容器只有 30×30，里面的图却带着 .image_logo 类，会继承
+      clamp(44px, 3.2vw, 60px) 的尺寸 —— 图比容器大一倍，直接溢出糊成一团，
+      这是「太丑」最主要的原因。现在子项不复用 .image_logo，尺寸自己控制。
+   2. 原来四个位置是手调的像素偏移（top:-67px / left:15% / right:0 …），
+      只对得上 60px 那一档，换个视口就散架。现在用 --a（角度）+ --r（半径）
+      描述位置，任意数量、任意角度都能均分，加站点只需改一条 HTML。
+   3. 原来四个子图标统一 translateY(-10px)「一起往上跳」，并不是环形展开。
+      现在按角度做真正的位移，配弹簧缓动 + 缩放淡入。
+   4. 原来子项落在主图标盒子之外、又没有任何过渡带，鼠标一往子项移动就掉
+      hover、菜单瞬间收起。现在子项自带一条十字形透明「连接桥」补住空隙。
+   5. --r 用 clamp() 跟随视口连续缩放，与其它图标的缩放节奏一致。
 
-#wed2 {
-  display: none;
-}
-#wed2 ul{
-    list-style-type: none;
-    margin-top: 0;
+   环形角度约定（三个子项互成 120°，绕主图标一圈）：
+     -90° 正上；150° 左下；30° 右下。
+   为什么不用「正下」：正下方 19% 视口高度处就是 #movie 那一行，
+   而 #movie 与 #top_colum 同级（z-index 都是 200）、DOM 更靠后，会盖住子项。
+   「正上」则不会撞到搜索框：子项上沿在 46%H−42px，搜索框下沿在 24%H+96px，
+   只要视口高 ≥ 628px 就始终有间隙。
 
-}
-
-
-#wed1:hover + #wed2 {
-  display: block;
-  transition: all 10s linear;
-}
-#wed2:hover{
-  display: block;
-  transition: all 10s linear;
-}
-
-/*实现ul的环形显示*/
+   注：位置计算用了 CSS 三角函数 cos()/sin()（Chrome 111+ / Safari 15.4+ /
+   Firefox 108+ 支持），不支持时子项会退化为居中显示。 */
 .icon-wrapper {
-  position: absolute;
+    float: left;              /* 与行内其它 .image_logo 排在同一行 */
+    position: relative;       /* 子项的定位基准 */
+    /* 主图标中心 → 子项中心的半径。
+       实测主图标「可见内容」只有 60×60（外面那圈 13px 是透明边框），
+       子项近端只要离中心 30+18 = 48px 以上就不会压到图形本身。
+       收紧到 56~66px（原来 64~76）：子项更贴近主图标，一圈看下来更紧凑、不像「散落的方块」；
+       对角线方向的横向外扩只有 0.707R，收紧后也不会压到同行相邻图标。 */
+    --r: clamp(56px, 4vw, 66px);
 }
-
+/* 「轨道」：一圈极淡的虚线，子项落在它上面。
+   目的是把「几个方块散在四周」变成「一条轨道上的站点」—— 环有形状了，眼睛才有落点。
+   半径取 --r 减 14px：这样轨道落在子项方块内部（子项中心在 --r、半宽 18px），
+   加上子项 z-index 更高，轨道只在子项之间的空隙露出来；
+   直径也小于同行图标间距（116px），不会画到相邻图标上。
+   pointer-events:none 必须留着 —— 否则这个圆盘会盖住主图标的点击区。 */
+.icon-wrapper::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc((var(--r) - 14px) * 2);
+    height: calc((var(--r) - 14px) * 2);
+    transform: translate(-50%, -50%);
+    border: 1px dashed rgb(47 122 69 / 20%);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 4;               /* 压在子项（z-index 5）之下 */
+    transition: opacity .22s ease;
+}
+.icon-wrapper:hover::after,
+.icon-wrapper.is-open::after {
+    opacity: 1;
+}
 .main-icon {
-  /* 主图标的样式 */
+    display: block;
+}
+.icon-wrapper .image_logo {
+    float: none;              /* 收进 wrapper 内，让 wrapper 尺寸可预测 */
+    transition: transform .2s ease-in-out, filter .2s ease;
+}
+/* 主图标被悬浮（或环处于展开保持态）时套一圈柔和光圈，提示「这里能展开」 */
+/* 主图标被悬浮（或环保持展开）时：只做「浮起」提示，**不再套那圈 6px 实心扩散** ——
+   box-shadow 的扩散是跟随元素盒子的，透明底 LOGO 旁边会多出一块圆角矩形色块，
+   看起来就像给图标加了一层圆角白底。改用 drop-shadow，投影贴着图形轮廓走。 */
+.icon-wrapper:hover .main-icon .image_logo,
+.icon-wrapper.is-open .main-icon .image_logo {
+    filter: drop-shadow(0 6px 12px rgb(28 60 40 / 45%));
 }
 
+/* 子项 = 纯 LOGO：**不要白底、不要圆角、不要描边**
+   （原来是「白色 95% 底 + 10px 圆角 + 浅绿描边」的方块，需求是只显示 LOGO 本身） */
 .sub-icon {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  /* 周围四个图标的公共样式 */
-  opacity: 0; /* 初始隐藏 */
-  transition: opacity 0.2s ease-in-out;
+    /* 收起态：缩回主图标中心；透明 + 不接收事件，避免挡住旁边的图标 */
+    --a: -90deg;                                 /* 环上角度（HTML 里按站点设置） */
+    --dx: calc(cos(var(--a)) * var(--r));
+    --dy: calc(sin(var(--a)) * var(--r));
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 5;
+    width: clamp(30px, 2vw, 36px);
+    height: clamp(30px, 2vw, 36px);
+    text-decoration: none;
+    opacity: 0;
+    pointer-events: none;
+    /* 收起与展开的 transform 函数列表保持一致（translate/translate/scale），
+       否则浏览器会退化成矩阵插值，动效会发飘 */
+    transform: translate(-50%, -50%) translate(0, 0) scale(.4);
+    transition:
+        opacity .16s ease,
+        transform .28s cubic-bezier(.34, 1.42, .58, 1),
+        filter .18s ease;
+    transition-delay: calc(var(--i, 0) * 45ms);   /* 多个子项时依次弹出 */
 }
-
-.sub-icon.top {
-    top: -67px;
-    left: 15%;;
-  margin-left: -15px;
-  /* 顶部图标的样式 */
-}
-
-.sub-icon.right {
-  top: 16%;
-  right: 0px;
-  margin-top: -15px;
-  /* 右侧图标的样式 */
-}
-
-.sub-icon.bottom {
-  bottom: 11px;
-  left: 14%;
-  margin-left: -15px;
-  /* 底部图标的样式 */
-}
-
-.sub-icon.left {
-  top: 17%;
-  left: -79px;
-  margin-top: -15px;
-  /* 左侧图标的样式 */
-}
-
-.icon-wrapper:hover .sub-icon {
-  opacity: 1; /* 悬停时显示 */
-    transform: translateY(-10px);
-}
-
-
-
-
-/*环形图标结束*/
-/*页脚*/
-#footer_end{
-    position: fixed;
-    bottom: 0%;
-    width: 97%;
-    line-height: 200px;
-}
-footer {
-    line-height: 50px;
+/* LOGO 图片 / 内联 SVG 一律填满子项的框，等比缩放不拉伸 */
+.sub-icon img,
+.sub-icon svg {
+    display: block;
+    width: 100%;
     height: 100%;
-    text-align-last: right;
-    color: black;
-    position: fixed;
-    right: 0px;
-    top: 88%;
+    object-fit: contain;
 }
+/* 悬浮该子项时在它下面浮出名称：
+   方形图标只放 LOGO 不放字，靠这条标签说明是哪个站点（原生 title 提示太慢太朴素） */
+.sub-label {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 7px);
+    padding: 3px 9px;
+    white-space: nowrap;
+    font: 12px/1.15 楷体, KaiTi, serif;
+    color: #fff;
+    background: rgb(28 60 40 / 90%);
+    border-radius: 7px;
+    box-shadow: 0 6px 14px rgb(28 60 40 / 26%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-3px);
+    transition: opacity .15s ease, transform .2s ease;
+}
+.sub-icon:hover .sub-label {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+/* 透明连接桥（十字形，四向都搭得上）：
+   补上主图标与子项之间那道缝 —— 没桥的话鼠标一往子项移就会掉 hover、菜单瞬间收起。
+   ⚠ 上一版把纵向桥写成 bottom:100%（朝着远离主图标的方向长），
+   正上方那个子项与主图标之间的缝根本没被盖住，所以「移到子项上就消失」。
+   现在两根桥都以子项为中心**向两侧外扩**，四个方向一次覆盖：
+     ::before 横向 → left/right 各外扩一截，高度等于方块高
+     ::after  纵向 → top/bottom 各外扩一截，宽度等于方块宽
+   外扩量只比实际缝隙（各视口下 6~10px）大一点点，避免盖住主图标的点击区。
+   收起态整体 pointer-events:none，所以这些桥不会干扰别的图标。 */
+.sub-icon::before,
+.sub-icon::after {
+    content: '';
+    position: absolute;
+    --bridge: clamp(16px, 1.4vw, 24px);
+}
+.sub-icon::before {
+    left: calc(-1 * var(--bridge));
+    right: calc(-1 * var(--bridge));
+    top: 0;
+    bottom: 0;
+}
+.sub-icon::after {
+    top: calc(-1 * var(--bridge));
+    bottom: calc(-1 * var(--bridge));
+    left: 0;
+    right: 0;
+}
+/* 展开：按 --a 角度环到 --r 半径处。
+   两个触发源：:hover（纯 CSS，无 JS 也能用）与 .is-open（index.js 加的，
+   鼠标离开后延迟 280ms 才摘掉）—— 这样鼠标在子项之间穿行、或手抖滑出一点，
+   都不会立刻收起，点击就稳了。 */
+.icon-wrapper:hover .sub-icon,
+.icon-wrapper.is-open .sub-icon {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(1);
+}
+/* 子项自身的悬浮态：放大 + 沿图形轮廓投影。
+   投影用 drop-shadow（贴着 LOGO 的形状走），不用 box-shadow（那会是个方块晕）；
+   transition-delay 归零 —— 不然 hover 反馈会被展开时的错开延迟拖慢 45~135ms。 */
+.sub-icon:hover {
+    z-index: 6;
+    transform: translate(-50%, -50%) translate(var(--dx), calc(var(--dy) - 4px)) scale(1.22);
+    filter: drop-shadow(0 5px 10px rgb(28 60 40 / 45%));
+    transition-delay: 0s;
+}
+/*环形图标结束*/
+/*页脚整块（#footer_end / footer）已随「博客 + Github」两个入口一并删除，样式不再保留 */
 /*美化ul li标签*/
 
 
@@ -489,9 +587,6 @@ footer {
     }
     .right_logo3{
       display: none;
-    }
-    .right_logo1{
-    right: 7%;
     }
 }
 @media screen and (max-width: 819px) {
@@ -548,9 +643,6 @@ footer {
     }
     #movie{
         top: 68%;
-    }
-    .right_logo1{
-    right: 10%;
     }
 }
 

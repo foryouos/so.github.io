@@ -1,25 +1,41 @@
 /* =========================================================================
  * foryouos 导航页 · PC 端页面逻辑
  * -------------------------------------------------------------------------
- * 搜索相关逻辑已统一收敛到 search.js（引擎表、快捷键、联想都在那里），
- * 本文件只保留：环形菜单跳转 + 和风天气定位。
+ * 搜索相关逻辑已统一收敛到 search.js（引擎表、快捷键、联想都在那里）。
+ *
+ * 说明：图标环（`.icon-wrapper` 主图标 + `.sub-icon` 子项）都是带 href 的真实 <a>，
+ * 展开靠 CSS :hover，不需要 JS 绑定 window.open —— 也就不会出现
+ * 「元素被删掉后脚本报空指针」的老问题。
  * ========================================================================= */
 
-/* ---------------- 环形菜单：点击各子图标跳转 ---------------- */
+/* ---------------- 图标环：鼠标离开后延迟收起 ----------------
+ * 光靠 CSS :hover 有个老毛病：主图标与子项之间那道缝、以及手抖滑出，
+ * 都会让 :hover 立刻失效，子项带着 pointer-events:none 一起消失，根本点不到。
+ * 这里在 mouseleave 后延迟 280ms 才摘掉 .is-open，鼠标在这段时间内落到子项上
+ * （会再次触发 mouseenter）就取消收起，点击就稳了。
+ * CSS 侧对应 `.icon-wrapper.is-open .sub-icon`，纯 CSS 的 :hover 仍然保留作为兜底。 */
 document.addEventListener('DOMContentLoaded', function () {
-  var pairs = [
-    ['.main-icon',          'https://www.cupfox.com/'],   // 茶杯狐
-    ['.sub-icon.top',       'https://www.bdys03.com/'],   // 哔嘀影视
-    ['.sub-icon.right',     'https://www.wangfei.tv/'],   // 网飞
-    ['.sub-icon.bottom',    'https://www.douyin.com/'],   // 抖音
-    ['.sub-icon.left',      'https://www.iqiyi.com/']     // 爱奇艺
-  ];
+  var CLOSE_DELAY = 280;   // ms，够鼠标从主图标挪到子项上
 
-  pairs.forEach(function (item) {
-    var el = document.querySelector(item[0]);
-    if (!el) { return; }                       // 元素不存在时跳过，避免整段脚本报错中断
-    el.style.cursor = 'pointer';
-    el.addEventListener('click', function () { window.open(item[1]); });
+  Array.prototype.forEach.call(document.querySelectorAll('.icon-wrapper'), function (wrap) {
+    var timer = null;
+
+    function keepOpen() {
+      if (timer) { clearTimeout(timer); timer = null; }
+      wrap.classList.add('is-open');
+    }
+    function closeLater() {
+      if (timer) { clearTimeout(timer); }
+      timer = window.setTimeout(function () {
+        wrap.classList.remove('is-open');
+        timer = null;
+      }, CLOSE_DELAY);
+    }
+
+    wrap.addEventListener('mouseenter', keepOpen);
+    wrap.addEventListener('mouseleave', closeLater);
+    wrap.addEventListener('focusin', keepOpen);      // 键盘 Tab 进来也展开
+    wrap.addEventListener('focusout', closeLater);
   });
 });
 
