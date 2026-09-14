@@ -40,39 +40,199 @@ a:hover {
     color: #78ff62;
     text-decoration: none;
 }
-#frame_so {
-    text-align: center;
+/* ======================== 搜索区 ======================== */
+/* 注意：本页未设置 viewport meta，浏览器按约 980px 的布局宽度渲染后再整体缩放，
+   因此这里的尺寸刻意沿用原来的大数值，横竖屏都不会错位 */
+#so_fram {
     position: fixed;
-    left: 12%;
-    bottom:58%;
-
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 58%;
+    width: 94%;
+    max-width: 830px;
+    z-index: 300;
 }
-/*输入框阴影*/
+
+/* ---- 搜索引擎切换标签 ---- */
+.so-engines {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.so-chip {
+    flex: 0 0 auto;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 28px;
+    line-height: 36px;
+    color: #3f6b4d;
+    background: rgb(255 255 255 / 70%);
+    border: 3px solid #b1ddbc;
+    border-radius: 999px;
+    cursor: pointer;
+    outline: none;
+}
+.so-chip.is-active {
+    color: #fff;
+    font-weight: bold;
+    background: #6fbf8a;
+    border-color: #6fbf8a;
+    box-shadow: 0 6px 14px rgb(0 0 0 / 20%);
+}
+
+/* ---- 输入框 + 搜索按钮 ---- */
+#frame_so {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+}
+.so-input-wrap {
+    position: relative;      /* LOGO / 清空按钮 / 联想下拉的定位基准 */
+    flex: 0 1 700px;
+    min-width: 0;
+}
+/* 输入框左侧的当前引擎 LOGO（SVG 由 search.js 注入） */
+.so-logo {
+    position: absolute;
+    left: 34px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;              /* 显式抬到输入框之上：移动端 #kw 背景为 .9 白，不加会被它压住 */
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    overflow: hidden;
+    pointer-events: none;
+}
+.so-logo svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+@keyframes fy-logo-in {
+    from { opacity: 0; transform: translateY(-50%) scale(.72); }
+    to   { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+.so-logo.is-swap {
+    animation: fy-logo-in .22s ease;
+}
+.so-clear {
+    position: absolute;
+    right: 26px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;              /* 与 .so-logo 同理 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    font-size: 44px;
+    line-height: 1;
+    color: #8aa79a;
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    outline: none;
+}
+.so-clear[hidden] {
+    display: none;
+}
+
+/*输入框阴影：大范围柔和投影，让搜索框从背景里「浮」起来*/
 input[type="text"] {
-  box-shadow: 10px 9px 5px rgb(0 0 0 / 30%);
+  box-shadow: 0 18px 38px rgb(0 0 0 / 24%);
 }
 
 #kw{
-    width: 688px;
-    height: 100px;
-    padding: 12px 16px;
-    font-size: 37px;
+    width: 100%;
+    box-sizing: border-box;
+    height: 150px;
+    padding: 0 92px 0 100px;     /* 左侧留出 46px LOGO + 间隙 */
+    font-family: inherit;
+    font-size: 38px;
     outline: 0;
-    /*box-shadow: none;*/
     border-radius: 40px 40px 40px 40px;
-    border: 12px solid #b1ddbc;
-    background: none;
-    color: #222;
+    border: 13px solid #b1ddbc;
+    /* 半透明白底，与背景照片形成强对比。
+       ⚠ 不要加 backdrop-filter / filter：#kw 在 DOM 里排在 .so-logo 之后，
+       被提升为「按 z-index:0 绘制的定位元素」后会整块盖住 LOGO。 */
+    background: rgba(255, 255, 255, .9);
+    color: #1f2d24;
 }
-#google,#baidu{
-    width: 110px;
-    height: 128px;
-    padding: 1px 4px;
-    border: 2px solid #b1ddbc;
-    color: purple;
-    border-radius: 20px 20px 20px 20px;
-    font-size: 28px;
-    background: none;
+#kw::placeholder {
+    color: #64856f;
+    font-size: 36px;
+}
+
+.so-submit {
+    flex: 0 0 120px;
+    box-sizing: border-box;   /* 与输入框等高 */
+    height: 150px;
+    font-family: inherit;
+    font-size: 32px;
+    font-weight: bold;
+    color: #fff;
+    border: 12px solid #6fbf8a;
+    border-radius: 40px 40px 40px 40px;
+    background: #6fbf8a;
+    outline: none;
+    cursor: pointer;
+}
+
+/* ---- 搜索联想下拉 ---- */
+.so-suggest {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 10px);
+    z-index: 400;
+    overflow: hidden;
+    text-align: left;
+    background: rgb(255 255 255 / 97%);
+    border: 3px solid #b1ddbc;
+    border-radius: 28px;
+    box-shadow: 0 16px 36px rgb(0 0 0 / 22%);
+}
+.so-suggest[hidden] {
+    display: none;
+}
+.so-suggest-item {
+    padding: 24px 40px;
+    font-size: 33px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+.so-suggest-item + .so-suggest-item {
+    border-top: 2px solid rgb(177 221 188 / 40%);
+}
+.so-suggest-item em {
+    font-style: normal;
+    font-weight: bold;
+    color: #2f7a45;
+}
+.so-suggest-item.is-active {
+    background: #eef8f1;
+}
+
+/* 空关键词提交时的轻微抖动提示 */
+@keyframes fy-shake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-10px); }
+    75%      { transform: translateX(10px); }
+}
+.so-input-wrap.is-shake {
+    animation: fy-shake .3s ease;
 }
 
 /*画廊CSS*/

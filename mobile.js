@@ -1,21 +1,12 @@
-window.onload =function (){
-    // document.getElementById("google").onclick =so1;
-    //
-    // document.getElementById("baidu").onclick =so2;
-}
-function so1()
-    {
-      document.getElementById("kw").name="q";
-      document.soform.action="https://g.teareading.app/search?";
-      document.soform.submit();
-    }
-function so2()
-    {
-      document.soform.action="https://www.baidu.com/s?";
-      document.soform.submit();
-    }
-// 修改和风天气
-// 使用https://ip.zxinc.org/api.php?type=json获取ip位置
+/* =========================================================================
+ * foryouos 导航页 · 移动端页面逻辑
+ * -------------------------------------------------------------------------
+ * 搜索相关逻辑已统一收敛到 search.js（引擎表、快捷键、联想都在那里），
+ * 本文件只负责和风天气定位。
+ * ========================================================================= */
+
+/* ---------------- 和风天气：先 IP 定位，再查城市 ID ---------------- */
+// IP 定位接口：https://ip.zxinc.org/api.php?type=json
 //城市id
 loc_id = "0";  //初始值是新乡
 let searchZh = "河南";
