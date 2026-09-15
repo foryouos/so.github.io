@@ -1,6 +1,13 @@
 html{
     height: 100%;
     width: 100%;
+    /* 整页都是 position: fixed 的单屏版式，本就不该出现任何滚动条。
+       而滚动条一旦出现/消失，视口宽度就会变，页面上所有 vw 单位
+       （#so_fram 的 36vw、--r 的 4vw、各种 clamp(...vw...) 字号）会整体重算 ——
+       表现就是「拖动框选到页面边缘时，宽度突然跳一下」。
+       放在 html 上而不是 body：根元素的 overflow 会传播给视口，
+       且根元素自身的 used value 会回到 visible，所以不会裁掉任何内容。 */
+    overflow: hidden;
 }
 body {
       background-color: white;
@@ -9,9 +16,14 @@ body {
       background-repeat: no-repeat;
       position: relative;
       box-sizing: border-box;
-      padding-bottom: 80px;
       font-family: 楷体 !important;
-    }
+      /* 这页没有需要选中的正文（只有图标和一个搜索框），
+         直接禁掉选中 —— 拖动框选会触发浏览器自动滚动与选中高亮，
+         正是上一条要防的那个「视口宽度被搅动」的触发动作。
+         搜索框要保留可选中、可编辑，见 #kw 的 user-select: text。 */
+      -webkit-user-select: none;
+      user-select: none;
+}
 .wv-a-alarm[data-v-09fa1830] {
     font-size: 0.9em !important;
 }
@@ -124,6 +136,45 @@ input {
 #movie{
     top: 65%;
 }
+/* ======================== 站点标识 ======================== */
+/* 放大镜 + 「foryouos 搜索」。**纯静态标识，不可点击**（是 span 不是 a），
+   所以没有 text-decoration / hover / 手型指针。
+   绝对定位浮在搜索区上方 —— 不占文档流，搜索框的位置和整页版式完全不受影响；
+   left:0 与 .so-engines 共用同一条左对齐线。 */
+#site-logo {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 14px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+}
+#site-logo img {
+    display: block;
+    width: clamp(30px, 2.2vw, 40px);
+    height: auto;
+}
+#site-logo .sl-text {
+    display: flex;
+    align-items: baseline;    /* 文字基线对齐；「搜索」没有底衬了，用 baseline 最自然 */
+    gap: 7px;
+    font-family: 楷体, KaiTi, serif;
+    line-height: 1;
+}
+#site-logo .sl-name {
+    font-size: clamp(17px, 1.25vw, 22px);
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: #2f7a45;
+}
+/* 「搜索」二字**不带底衬**（曾按需求加过白底，用户反馈那块白在背景上很突兀，改回透明）。
+   去掉白底后文字恢复成浅一档的绿 —— 它是 "foryouos" 的副标题，视觉上就该轻一级。 */
+#site-logo .sl-sub {
+    font-size: clamp(13px, .95vw, 16px);
+    color: #6fbf8a;
+}
+
 /* ======================== 搜索区 ======================== */
 /* 定位策略：左边界与下方图标列对齐（视口 10%），宽度取 40vw，
    于是右边界恒定落在视口 50% —— 实测背景插画人物的最左沿约在 52%，
@@ -254,10 +305,14 @@ input[type="text"] {
     box-sizing: border-box;
     height: 62px;
     padding: 0 46px 0 54px;      /* 左侧留出 28px LOGO + 间隙 */
+    -webkit-user-select: text;   /* body 全局禁了选中，输入框要单独放开 */
+    user-select: text;
     font-family: 楷体, KaiTi, serif;
     font-size: 18px;
     color: #1f2d24;
     /* 半透明白底：既与青绿背景拉开对比，又不会像纯白那样硬切背景插画。
+       （曾一度改成透明，后按需求恢复 —— 透明后输入框只剩一圈边框，
+       在插画上"不像一个能输入的控件"，还是需要这层底来立住。）
        ⚠ 这里只放 background，不要再加 backdrop-filter / filter ——
        二者都会把 #kw 变成「按 z-index:0 参与绘制的定位元素」，
        而 #kw 在 DOM 里排在 .so-logo 之后，于是整个输入框会画在 LOGO 上面，
@@ -279,7 +334,7 @@ input[type="text"] {
     box-shadow: 0 13px 28px rgb(0 0 0 / 22%), 0 0 0 5px rgb(111 191 138 / 30%);
 }
 #kw::placeholder {
-    color: #64856f;
+    color: #64856f;              /* 与 .78 的白底配套；改动白底时要一并复核这一档 */
     font-size: 17px;
 }
 

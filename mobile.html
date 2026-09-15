@@ -5,7 +5,10 @@
     <meta name="referrer" content="never">
     <!--移动端-->
     <title>foryou网站导航</title>
-    <link rel="icon" sizes="any" href="https://i.imgtg.com/2023/03/09/YQfnF.png">
+    <!-- 标签栏图标：与 PC 端同一个本地放大镜标识（SVG 优先，PNG 回退） -->
+    <link rel="icon" type="image/svg+xml" href="assert/site-logo.svg">
+    <link rel="icon" type="image/png" sizes="64x64" href="assert/site-logo-64.png">
+    <link rel="apple-touch-icon" href="assert/site-logo-64.png">
     <meta name="keywords" content="foryouos浏览器导航页，GitHub UI重构项目"/>
     <meta name="description" content="foryou网页导航移动端页面"/>
     <meta name="author" content="https://www.so.foryouos.cn"/>
@@ -33,46 +36,24 @@
           }
           browserRedirect();
     </script>
-<!--    <script>-->
-<!--        WIDGET = {-->
-<!--          "CONFIG": {-->
-<!--            "modules": "01234",-->
-<!--            "background": "5",-->
-<!--            "tmpColor": "E6B8AF",-->
-<!--            "tmpSize": "56",-->
-<!--            "cityColor": "434343",-->
-<!--            "citySize": "56",-->
-<!--            "aqiColor": "FF9900",-->
-<!--            "aqiSize": "66",-->
-<!--            "weatherIconSize": "94",-->
-<!--            "alertIconSize": "58",-->
-<!--            "padding": "10px 10px 10px 10px",-->
-<!--            "shadow": "1",-->
-<!--            "language": "auto",-->
-<!--            "borderRadius": "10",-->
-<!--            "fixed": "true",-->
-<!--            "vertical": "center",-->
-<!--            "horizontal": "left",-->
-<!--            "city": "CN101180301",-->
-<!--            "left": "40",-->
-<!--            "top": "20",-->
-<!--            "key": "6cfd3807500d4af38572be5b6b6d0f24"-->
-<!--          }-->
-<!--        }-->
-<!--    </script>-->
-    <script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script>
+    <!-- 和风天气组件已按需求移除：手机端只保留搜索区。
+         原来的 WIDGET 配置块、widget.qweather.net 的脚本、以及 mobile.js（里面只有天气定位逻辑）
+         都已摘掉。mobile.js 文件仍留在仓库里，将来要恢复天气，把 <script src="mobile.js"> 加回来即可。 -->
     <script src="search.js" type="text/javascript"></script>
-    <script src="mobile.js" type="text/javascript"></script>
     <link rel="stylesheet" href="mobile.css" >
 
 </head>
 <body>
 
-    <div id="he-plugin-simple"></div>
-
     <!--搜索框：引擎标签 + 输入框 + 联想下拉，逻辑见 search.js-->
     <!--如需打开页面时不自动弹出键盘，去掉下面 input 上的 autofocus 即可-->
     <div id="so_fram" data-fy-search>
+      <!-- 站点标识（放大镜 + foryouos 搜索）：纯静态标识、**不可点击**，用 <span> 而非 <a>；
+           绝对定位浮在搜索区上方，不占文档流 -->
+      <span id="site-logo">
+        <img src="assert/site-logo.svg" alt="">
+        <span class="sl-text"><span class="sl-name">foryouos</span><span class="sl-sub">搜索</span></span>
+      </span>
       <!--搜索引擎切换标签由 search.js 依据配置生成-->
       <div class="so-engines" role="group" aria-label="选择搜索引擎"></div>
 
@@ -92,24 +73,8 @@
       </form>
     </div>
 
-    <div class="gallery">
-      <a href="https://www.blog.foryouos.cn">
-        <img src="https://i.imgtg.com/2023/03/24/9ILcG.png"  alt="博客" title="博客">
-      </a>
-      <a href="https://www.foryouos.cn">
-        <img src="https://i.imgtg.com/2023/03/09/YQ8Yg.png"  alt="主页" title="瓶子的跋涉">
-      </a>
-      <a href="https://www.github.com/foryouos">
-        <img src="https://i.imgtg.com/2023/03/09/YQIAs.png"  alt="Github" title="Github">
-      </a>
-    </div>
-
-    <div id="footer_end">
-      <footer>
-        <a href="https://www.blog.foryouos.cn/" target="_blank"> Blog   |</a>
-        <a href="https://github.com/foryouos" target="_blank"> GitHub</a>
-      </footer>
-    </div>
+    <!-- 画廊（博客/主页/Github 三个图标）与页脚（Blog | GitHub）已按需求移除：
+         手机端只留搜索区，其余内容在窄屏上视觉上铺不开。 -->
 </body>
 
 </html>

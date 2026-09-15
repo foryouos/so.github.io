@@ -18,7 +18,10 @@ foryouos状态栏开源项目，完全自定义化主页
   <meta charset="UTF-8">
   <meta name="referrer" content="never">
   <!--网站标签栏的logo-->
-  <link rel="icon" sizes="any" href="https://i.imgtg.com/2023/03/09/YQfnF.png">
+  <!-- 标签栏图标：本地放大镜标识（SVG 优先，PNG 回退），同时是页面上的站点 LOGO -->
+  <link rel="icon" type="image/svg+xml" href="assert/site-logo.svg">
+  <link rel="icon" type="image/png" sizes="64x64" href="assert/site-logo-64.png">
+  <link rel="apple-touch-icon" href="assert/site-logo-64.png">
   <meta name="keywords" content="foryouos浏览器导航页，GitHub UI重构项目"/>
   <meta name="description" content="对UI的重新制作，对友情链接的重新导向，新体验"/>
   <meta name="author" content="https://www.foryouos.cn"/>
@@ -63,6 +66,12 @@ foryouos状态栏开源项目，完全自定义化主页
 
   <!--搜索框：引擎标签 + 输入框 + 联想下拉，逻辑见 search.js-->
   <div id="so_fram" data-fy-search>
+    <!-- 站点标识（放大镜 + foryouos 搜索）：纯静态标识、**不可点击**，所以用 <span> 而不是 <a>。
+         绝对定位浮在搜索区上方，不占文档流，搜索框位置与整页版式都不受影响。 -->
+    <span id="site-logo">
+      <img src="assert/site-logo.svg" alt="" width="38" height="38">
+      <span class="sl-text"><span class="sl-name">foryouos</span><span class="sl-sub">搜索</span></span>
+    </span>
     <!--搜索引擎切换标签由 search.js 依据配置生成-->
     <div class="so-engines" role="group" aria-label="选择搜索引擎"></div>
 
