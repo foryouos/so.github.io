@@ -384,13 +384,13 @@ input[type="text"] {
 }
 
 
-/* 悬停反馈：放大 + 沿图形轮廓投影。
-   投影用 filter: drop-shadow 而不是 box-shadow —— box-shadow 跟随元素盒子，
+/* 悬停反馈：放大 + 双层青光（激活态）。
+   ⚠️ 用 filter: drop-shadow 而不是 box-shadow —— box-shadow 跟随元素盒子，
    会给透明底的 LOGO 套上一个圆角矩形的色块/晕，看着就像多了一层背景；
    drop-shadow 是贴着 LOGO 的实际形状算的，透明处不投影。 */
 .image_logo:hover {
   transform: scale(1.2);
-  filter: drop-shadow(0 6px 12px rgb(28 60 40 / 42%));
+  filter: drop-shadow(0 0 5px var(--hud-soft)) drop-shadow(0 0 18px var(--hud-glow));
 }
 /* ============ 网站开发工具 ============
    已并入上面那套「图标环」：主图标 = Cloudflare（点击进 dash.cloudflare.com），
@@ -422,6 +422,18 @@ input[type="text"] {
 
    注：位置计算用了 CSS 三角函数 cos()/sin()（Chrome 111+ / Safari 15.4+ /
    Firefox 108+ 支持），不支持时子项会退化为居中显示。 */
+/* ===== 悬浮「激活态」的 HUD 配色 =====
+   常态保持页面原有的柔和绿白（#6fbf8a / #2f7a45 / #b1ddbc），
+   只有鼠标悬浮时才点亮成青绿 HUD —— 叙事先行：悬浮 = 能量注入。
+   青绿与背景插画的暖黄是冷暖对撞，这正是科幻观感的主要来源；
+   若把常态也改成青色，整页会变成廉价霓虹板，反而失去对比。 */
+:root {
+    --hud: #00e5b0;                        /* HUD 主色：青绿荧光 */
+    --hud-soft: rgb(0 229 176 / 45%);      /* 近处锐利的辉光 */
+    --hud-glow: rgb(0 229 176 / 26%);      /* 远处弥散的辉光 */
+    --hud-faint: rgb(0 229 176 / 18%);     /* 仪表环、刻度 */
+    --hud-text: #073b30;                   /* HUD 文字（深墨绿，压在透明底上） */
+}
 .icon-wrapper {
     float: left;              /* 与行内其它 .image_logo 排在同一行 */
     position: relative;       /* 子项的定位基准 */
@@ -432,7 +444,7 @@ input[type="text"] {
        对角线方向的横向外扩只有 0.707R，收紧后也不会压到同行相邻图标。 */
     --r: clamp(56px, 4vw, 66px);
 }
-/* 「轨道」：一圈极淡的虚线，子项落在它上面。
+/* 「轨道」内圈：一圈极淡虚线，子项落在它上面，充当仪表盘的量度参考。
    目的是把「几个方块散在四周」变成「一条轨道上的站点」—— 环有形状了，眼睛才有落点。
    半径取 --r 减 14px：这样轨道落在子项方块内部（子项中心在 --r、半宽 18px），
    加上子项 z-index 更高，轨道只在子项之间的空隙露出来；
@@ -446,31 +458,90 @@ input[type="text"] {
     width: calc((var(--r) - 14px) * 2);
     height: calc((var(--r) - 14px) * 2);
     transform: translate(-50%, -50%);
-    border: 1px dashed rgb(47 122 69 / 20%);
+    border: 1px dashed var(--hud-faint);
     border-radius: 50%;
     opacity: 0;
     pointer-events: none;
     z-index: 4;               /* 压在子项（z-index 5）之下 */
     transition: opacity .22s ease;
 }
+/* 「轨道」外圈：一段高亮弧线在持续旋转 —— 雷达扫描的语汇。
+   只用 border-*-color 点亮两个边，就得到约 90° 的弧；比满圈描边克制得多。
+   半径取 --r 减 9px（比内圈再大一点），两条环同心错开才有层次；
+   半径同样受 116px 的同行间距约束，不能再大。 */
+.icon-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc((var(--r) - 9px) * 2);
+    height: calc((var(--r) - 9px) * 2);
+    transform: translate(-50%, -50%);
+    border: 1.5px solid transparent;
+    border-top-color: var(--hud);
+    border-right-color: var(--hud-soft);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 4;
+    transition: opacity .22s ease;
+}
 .icon-wrapper:hover::after,
-.icon-wrapper.is-open::after {
+.icon-wrapper.is-open::after,
+.icon-wrapper:hover::before,
+.icon-wrapper.is-open::before {
     opacity: 1;
+}
+.icon-wrapper:hover::before,
+.icon-wrapper.is-open::before {
+    animation: hud-spin 3.2s linear infinite;
+}
+@keyframes hud-spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
 }
 .main-icon {
     display: block;
+    position: relative;       /* 扫描线的定位基准 */
+    overflow: hidden;         /* 把扫描线裁在主图标盒内，不越过相邻图标 */
+}
+/* 一次性「扫描」：鼠标移进来时，一条青光横线自上而下扫过主图标，扫完即停。
+   做成一次性而不是循环 —— 循环的扫描线会一直抢注意力，反而是噪音。
+   .main-icon 的盒子就是 .image_logo 的边框盒（含那圈 13px 透明边框），
+   所以配合 overflow:hidden，这条线不会溢出到相邻图标上。 */
+.main-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--hud) 22%, var(--hud) 78%, transparent);
+    box-shadow: 0 0 10px var(--hud);
+    opacity: 0;
+    pointer-events: none;
+}
+.icon-wrapper:hover .main-icon::after,
+.icon-wrapper.is-open .main-icon::after {
+    animation: hud-scan .62s cubic-bezier(.3, .7, .4, 1) 1;
+}
+@keyframes hud-scan {
+    0%   { top: 0%;    opacity: 0; }
+    12%  { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
 }
 .icon-wrapper .image_logo {
     float: none;              /* 收进 wrapper 内，让 wrapper 尺寸可预测 */
     transition: transform .2s ease-in-out, filter .2s ease;
 }
-/* 主图标被悬浮（或环处于展开保持态）时套一圈柔和光圈，提示「这里能展开」 */
-/* 主图标被悬浮（或环保持展开）时：只做「浮起」提示，**不再套那圈 6px 实心扩散** ——
-   box-shadow 的扩散是跟随元素盒子的，透明底 LOGO 旁边会多出一块圆角矩形色块，
-   看起来就像给图标加了一层圆角白底。改用 drop-shadow，投影贴着图形轮廓走。 */
+/* 主图标被悬浮（或环保持展开）= 进入「激活态」：
+   双层青光（近处锐利 + 远处弥散）代替原来的柔性投影。
+   ⚠️ 仍然不用 box-shadow —— 它跟随元素盒子，透明底 LOGO 旁边会成一块圆角矩形色块；
+   drop-shadow 按 alpha 贴着图形轮廓算，光才会贴着形状走。 */
 .icon-wrapper:hover .main-icon .image_logo,
 .icon-wrapper.is-open .main-icon .image_logo {
-    filter: drop-shadow(0 6px 12px rgb(28 60 40 / 45%));
+    filter: drop-shadow(0 0 5px var(--hud-soft)) drop-shadow(0 0 18px var(--hud-glow));
 }
 
 /* 子项 = 纯 LOGO：**不要白底、不要圆角、不要描边**
@@ -492,9 +563,11 @@ input[type="text"] {
     /* 收起与展开的 transform 函数列表保持一致（translate/translate/scale），
        否则浏览器会退化成矩阵插值，动效会发飘 */
     transform: translate(-50%, -50%) translate(0, 0) scale(.4);
+    /* 缓动从「弹簧回弹」(.34,1.42,.58,1) 换成 expo-out：快速进入、精准停住。
+       回弹是活泼/拟物的语汇，和 HUD 要的「锁定」感相反。 */
     transition:
-        opacity .16s ease,
-        transform .28s cubic-bezier(.34, 1.42, .58, 1),
+        opacity .14s ease,
+        transform .24s cubic-bezier(.16, 1, .3, 1),
         filter .18s ease;
     transition-delay: calc(var(--i, 0) * 45ms);   /* 多个子项时依次弹出 */
 }
@@ -512,13 +585,25 @@ input[type="text"] {
     position: absolute;
     left: 50%;
     top: calc(100% + 7px);
-    padding: 3px 9px;
+    padding: 3px 10px 3px 9px;
     white-space: nowrap;
-    font: 12px/1.15 楷体, KaiTi, serif;
-    color: #fff;
-    background: rgb(28 60 40 / 90%);
-    border-radius: 7px;
-    box-shadow: 0 6px 14px rgb(28 60 40 / 26%);
+    /* 等宽字体（中文回退到雅黑）+ 大字距 —— 终端/HUD 文本的排印特征。
+       原来的楷体读起来是「书本感」，与科幻语汇冲突。 */
+    font: 12px/1.2 ui-monospace, Consolas, "Cascadia Mono", "Microsoft YaHei", monospace;
+    letter-spacing: .09em;
+    /* 背景**透明**（原来是 rgb(4 26 22/94%) 的墨底，视觉上就是一块黑）。
+       没有底色托着，文字就必须换成深色才读得清，
+       再叠三层白色 text-shadow 从紧到松做「白色光晕」，压在插画上也不会糊。 */
+    color: var(--hud-text);
+    background: transparent;
+    text-shadow:
+        0 1px 2px rgb(255 255 255 / 95%),
+        0 0 6px rgb(255 255 255 / 85%),
+        0 0 12px rgb(255 255 255 / 60%);
+    /* 没有底色就不需要投影了；只留左侧一条 HUD 青色亮边作为标识 */
+    border-left: 2px solid var(--hud);
+    border-radius: 0;
+    box-shadow: none;
     opacity: 0;
     pointer-events: none;
     transform: translateX(-50%) translateY(-3px);
@@ -565,13 +650,13 @@ input[type="text"] {
     pointer-events: auto;
     transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(1);
 }
-/* 子项自身的悬浮态：放大 + 沿图形轮廓投影。
-   投影用 drop-shadow（贴着 LOGO 的形状走），不用 box-shadow（那会是个方块晕）；
+/* 子项自身的悬浮态 = 被「锁定」：放大 + 双层青光。
+   辉光用 drop-shadow（贴着 LOGO 形状走），不用 box-shadow（那会是个方块晕）；
    transition-delay 归零 —— 不然 hover 反馈会被展开时的错开延迟拖慢 45~135ms。 */
 .sub-icon:hover {
     z-index: 6;
     transform: translate(-50%, -50%) translate(var(--dx), calc(var(--dy) - 4px)) scale(1.22);
-    filter: drop-shadow(0 5px 10px rgb(28 60 40 / 45%));
+    filter: drop-shadow(0 0 5px var(--hud-soft)) drop-shadow(0 0 16px var(--hud-glow));
     transition-delay: 0s;
 }
 /*环形图标结束*/

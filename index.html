@@ -152,11 +152,26 @@ foryouos状态栏开源项目，完全自定义化主页
       </a>
     </div>
 
-    <!-- Canva 可画：官网只发布「渐变圆角方块」版图标，用户要求背景透明，
-         所以取它 CDN 上的官方**字标 SVG**（80×30，透明底，紫色→青色渐变）。 -->
-    <a href="https://www.canva.cn/" target="_blank" title="Canva 可画">
-      <img src="assert/brand-canva.svg" class="image_logo" alt="Canva 可画">
-    </a>
+    <!-- ===== Canva 可画：主图标进 canva.cn，悬浮后在**正上方**浮现「微信公众号」 =====
+         单子项为什么放正上而不是正下：#top_colum 的正下方就是 #movie（同级 z-index 200
+         且 DOM 更靠后），向下会盖住子项；正上方则是空的。
+         （#movie 里的读书组没有这个约束，所以那边用正下。
+           单子项的统一原则 —— 放在这一行「没被占用」的那一侧。）
+         公众号用 Canva 中国官网自己的落地页 canva.cn/wechat-official-account/；
+         图标取微信官方标识（绿色对话气泡），一眼能认出是公众号。
+         主图标用官方**字标 SVG**（80×30，透明底，紫→青渐变）——
+         官网的图标版是带底色的渐变圆角方块，不符合「背景透明」的要求。 -->
+    <div class="icon-wrapper">
+      <a class="main-icon" href="https://www.canva.cn/" target="_blank" rel="noopener" title="Canva 可画">
+        <img src="assert/brand-canva.svg" alt="Canva 可画" title="Canva 可画" class="image_logo">
+      </a>
+      <a class="sub-icon" style="--a: -90deg; --i: 0"
+         href="https://www.canva.cn/wechat-official-account/" target="_blank"
+         rel="noopener" aria-label="Canva 可画微信公众号">
+        <img src="assert/brand-wechat.png" alt="">
+        <span class="sub-label">微信公众号</span>
+      </a>
+    </div>
 
 
   </div>
