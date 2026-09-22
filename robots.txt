@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 站点地图（本站为单页导航，仅收录首页）
+Sitemap: https://www.so.foryouos.cn/sitemap.xml

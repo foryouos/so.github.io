@@ -3,16 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="referrer" content="never">
-    <!--移动端-->
-    <title>foryou网站导航</title>
-    <!-- 标签栏图标：与 PC 端同一个本地放大镜标识（SVG 优先，PNG 回退） -->
+    <!-- ============ 站点图标（与 PC 端同一套文件） ============ -->
+    <!-- favicon.ico 在站点根目录：抓取器优先取 /favicon.ico，只声明 SVG 时大多会被忽略，
+         搜索结果里就退回默认的「地球」图标。 -->
+    <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="icon" type="image/svg+xml" href="assert/site-logo.svg">
-    <link rel="icon" type="image/png" sizes="64x64" href="assert/site-logo-64.png">
-    <link rel="apple-touch-icon" href="assert/site-logo-64.png">
-    <meta name="keywords" content="foryouos浏览器导航页，GitHub UI重构项目"/>
-    <meta name="description" content="foryou网页导航移动端页面"/>
-    <meta name="author" content="https://www.so.foryouos.cn"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="mask-icon" href="mask-icon.svg" color="#12b76a">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="apple-mobile-web-app-title" content="foryouos 导航">
+    <meta name="application-name" content="foryouos 导航">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="msapplication-TileColor" content="#12b76a">
+    <meta name="theme-color" content="#12b76a">
+
+    <!-- ============ 基础 SEO ============ -->
+    <title>foryouos 导航 · 自建聚合搜索入口</title>
+    <meta name="keywords" content="foryouos,搜索导航,聚合搜索,必应,百度,导航页,手机搜索"/>
+    <meta name="description" content="foryouos 搜索导航页的移动端：只保留搜索区，默认必应，可切换百度 / Google / 知乎 / B站 / 豆瓣等。"/>
+    <meta name="author" content="foryouos"/>
     <meta http-equiv="content-Type" content="text/html;charset=utf-8"/>
+    <meta name="robots" content="noindex,follow"/>
+    <!-- 本页是按 UA 分流的移动端版本，内容与首页一致 —— 声明 canonical 指回首页，
+         免得搜索引擎把它当成重复页面单独收录。 -->
+    <link rel="canonical" href="https://www.so.foryouos.cn/"/>
 
 
     <script>

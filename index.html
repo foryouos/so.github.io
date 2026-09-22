@@ -17,16 +17,93 @@ foryouos状态栏开源项目，完全自定义化主页
 <head>
   <meta charset="UTF-8">
   <meta name="referrer" content="never">
-  <!--网站标签栏的logo-->
-  <!-- 标签栏图标：本地放大镜标识（SVG 优先，PNG 回退），同时是页面上的站点 LOGO -->
+  <!-- ============ 站点图标（浏览器标签 / 书签 / 搜索结果 / 移动端主屏） ============ -->
+  <!-- favicon.ico 必须落在站点根目录：站点图标抓取器优先取 /favicon.ico，
+       只声明 SVG 图标时大多会被忽略，搜索结果里就退回默认的「地球」图标。
+       下面按 ICO → PNG(48/96/32/16) → SVG 逐级声明，覆盖全部浏览器。 -->
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <!-- SVG 版：矢量、任意尺寸都清晰（Chromium / Firefox / Safari 15.4+ 会优先用它） -->
   <link rel="icon" type="image/svg+xml" href="assert/site-logo.svg">
-  <link rel="icon" type="image/png" sizes="64x64" href="assert/site-logo-64.png">
-  <link rel="apple-touch-icon" href="assert/site-logo-64.png">
-  <meta name="keywords" content="foryouos浏览器导航页，GitHub UI重构项目"/>
-  <meta name="description" content="对UI的重新制作，对友情链接的重新导向，新体验"/>
-  <meta name="author" content="https://www.foryouos.cn"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="mask-icon" href="mask-icon.svg" color="#12b76a">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="foryouos 导航">
+  <meta name="application-name" content="foryouos 导航">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="msapplication-config" content="browserconfig.xml">
+  <meta name="msapplication-TileColor" content="#12b76a">
+  <meta name="msapplication-square150x150logo" content="mstile-150x150.png">
+  <meta name="theme-color" content="#12b76a">
+
+  <!-- ============ 基础 SEO ============ -->
+  <title>foryouos 导航 · 自建聚合搜索入口</title>
+  <meta name="keywords" content="foryouos,搜索导航,聚合搜索,必应,百度,导航页,浏览器主页"/>
+  <meta name="description" content="foryouos 的搜索导航页：默认必应，可切换百度 / Google / 知乎 / B站 / 豆瓣等，并按主题分组的悬浮图标环直达学习、视频、阅读、AI 等常用站点。"/>
+  <meta name="author" content="foryouos"/>
   <meta http-equiv="content-Type" content="text/html;charset=utf-8"/>
-  <title>foryouos导航页</title>
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large"/>
+  <link rel="canonical" href="https://www.so.foryouos.cn/"/>
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml"/>
+
+  <!-- ============ 社交 / 富媒体卡片 ============ -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="foryouos 导航"/>
+  <meta property="og:locale" content="zh_CN"/>
+  <meta property="og:title" content="foryouos 导航 · 自建聚合搜索入口"/>
+  <meta property="og:description" content="默认必应，可切换百度 / Google / 知乎 / B站 / 豆瓣等；悬浮图标环直达常用站点。"/>
+  <meta property="og:url" content="https://www.so.foryouos.cn/"/>
+  <meta property="og:image" content="https://www.so.foryouos.cn/og-cover.png"/>
+  <meta property="og:image:type" content="image/png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:image:alt" content="foryouos 导航 — 绿底白色放大镜标识"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="foryouos 导航 · 自建聚合搜索入口"/>
+  <meta name="twitter:description" content="默认必应，可切换百度 / Google / 知乎 / B站 / 豆瓣等。"/>
+  <meta name="twitter:image" content="https://www.so.foryouos.cn/og-cover.png"/>
+
+  <!-- ============ 结构化数据：告诉搜索引擎「这是什么站、有哪些去处」 ============ -->
+  <!-- 注：这里**没有**声明 potentialAction/SearchAction。搜索框虽然在本页，但真正执行搜索的是
+       Bing（不在本站域名下），而 Google 要求 SearchAction 的 target 必须指向站点自己的搜索端点，
+       声明一个外域 target 不会被采用、反而可能被判为不符。等本站有了自己的搜索页再加。 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://www.so.foryouos.cn/#website",
+        "url": "https://www.so.foryouos.cn/",
+        "name": "foryouos 导航",
+        "alternateName": ["foryouos 搜索", "foryouos 搜索导航页"],
+        "description": "foryouos 的聚合搜索导航页，默认使用必应，可切换多种搜索引擎。",
+        "inLanguage": "zh-CN",
+        "publisher": { "@id": "https://www.foryouos.cn/#person" }
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://www.so.foryouos.cn/#navigation",
+        "name": "常用站点导航",
+        "itemListElement": [
+          { "@type": "SiteNavigationElement", "position": 1, "name": "中国大学MOOC", "url": "https://www.icourse163.org/" },
+          { "@type": "SiteNavigationElement", "position": 2, "name": "一刻相册", "url": "https://photo.baidu.com/" },
+          { "@type": "SiteNavigationElement", "position": 3, "name": "知乎", "url": "https://www.zhihu.com/" },
+          { "@type": "SiteNavigationElement", "position": 4, "name": "豆瓣", "url": "https://www.douban.com/" },
+          { "@type": "SiteNavigationElement", "position": 5, "name": "Canva 可画", "url": "https://www.canva.cn/" },
+          { "@type": "SiteNavigationElement", "position": 6, "name": "CSDN", "url": "https://www.csdn.net/" },
+          { "@type": "SiteNavigationElement", "position": 7, "name": "微信读书", "url": "https://weread.qq.com/" },
+          { "@type": "SiteNavigationElement", "position": 8, "name": "WorkBuddy", "url": "https://www.workbuddy.cn/" },
+          { "@type": "SiteNavigationElement", "position": 9, "name": "网易云音乐", "url": "https://music.163.com/" },
+          { "@type": "SiteNavigationElement", "position": 10, "name": "Cloudflare", "url": "https://dash.cloudflare.com/" }
+        ]
+      }
+    ]
+  }
+  </script>
   <!--  判断手机类型实现切换-->
   <script>
       function browserRedirect() {
