@@ -921,7 +921,23 @@ input[type="text"] {
     border-bottom-color: rgb(226 175 170 / 50%);
 }
 .ai-status.is-empty { color: #6b7d73; }
+/* 「没搜」与「搜了没结果」要能一眼分开：前者是配置问题（黄），后者只是换个词（灰） */
+.ai-status.is-warn {
+    color: #8a5a12;
+    background: rgb(255 250 235 / 88%);
+    border-bottom-color: rgb(226 205 150 / 55%);
+}
 .ai-note { margin: 0; }
+.ai-status code,
+.ai-hint code,
+.ai-note code {
+    padding: 1px 5px;
+    font: 11px/1.5 Consolas, Monaco, monospace;
+    color: #2f7a45;
+    background: rgb(177 221 188 / 32%);
+    border-radius: 4px;
+    word-break: break-all;
+}
 .ai-hint { color: #8aa79a; font-size: 12px; }
 /* 网络层失败时的排查清单（AI 搜索报「请求没能发出」用） */
 .ai-hint-list {
@@ -952,6 +968,27 @@ input[type="text"] {
     border: 1px solid rgb(177 221 188 / 60%);
     border-radius: 8px;
     white-space: pre-wrap;
+    word-break: break-all;
+    user-select: text;
+}
+/* 「它实际用过的检索词」折叠区：服务端不暴露检索源，
+   这串 queries 是唯一能看到「它到底怎么搜的、平台引导有没有生效」的地方 */
+.ai-queries {
+    margin: 7px 0 0;
+    font: 12px/1.6 楷体, KaiTi, serif;
+}
+.ai-queries summary {
+    color: #6fbf8a;
+    cursor: pointer;
+    outline: none;
+}
+.ai-queries ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: #5a7268;
+}
+.ai-queries li {
+    margin-bottom: 2px;
     word-break: break-all;
     user-select: text;
 }

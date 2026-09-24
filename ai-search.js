@@ -30,8 +30,43 @@
   /* ============================== 配置区 ============================== */
   var CFG = {
     endpoint: 'https://api.deepseek.com/responses',
-    /** 目前只有 v4-flash 支持 web_search；模型迭代后改这里即可 */
-    model: 'deepseek-v4-flash',
+    /**
+     * 联网检索可用的模型候选，**按"更可能支持"排序，依次尝试**。
+     *
+     * 为什么要做成候选 + 自动尝试：
+     *   实测 `deepseek-flash` 上即便把 tools / tool_choice 都传齐、instructions 与 input
+     *   也做了分离，服务端依然**一次工具都不执行**（output 只有 reasoning / message，
+     *   usage 里没有 server_tool_use 计数）；官方 Responses 兼容性文档的 Tools 表也把
+     *   `web_search` 列为 Ignored —— 文档与现象是一致的。
+     *   而公开实测显示 **`deepseek-v4-pro`** 能真正执行并把次数记进
+     *   `usage.server_tool_use.web_search_requests`。
+     * 所以这里按顺序试：哪个模型真的触发了检索，就用 localStorage 记住它，
+     * 下次直接用。只在"一次都没搜"时才会往下试，真搜到了就不会重复花钱。
+     */
+    modelCandidates: ['deepseek-v4-pro', 'deepseek-flash'],
+    /** 记住"哪个模型真的能搜"的键名 */
+    modelStorage: 'foryouos.ai.model',
+    /** 是否允许自动换模型重试（关掉就只用第一个候选） */
+    autoTryModels: true,
+    /**
+     * 联网检索工具名。官方 create-response 里 tool_choice.type 的允许值是
+     * [function, web_search, web_search_2025_08_26]，所以这个字段是可换的 ——
+     * 若某个名字被服务端忽略，换另一个试。
+     */
+    searchTool: 'web_search',
+    /**
+     * 是否**强制**模型执行联网检索。
+     *
+     * 必须为 true —— 这是实测踩出来的：只给 tools 不指定 tool_choice 时，
+     * 是否真的去搜由模型自己决定，而它可能选择不搜（实测 output 里只有
+     * reasoning / message，没有 web_search_call）。请求成功、格式全对，
+     * 但模型手里根本没有检索结果，再叠加"绝不许编造"的约束，
+     * 它就只能回一句"未实际联网检索到结果，按要求不编造"。
+     *
+     * 官方文档给的强制写法是 tool_choice: {type:'web_search'}，
+     * 并明确要求此时 tools 里必须含 web_search，否则返回 400 —— 两者要成对出现。
+     */
+    forceSearch: true,
     /** key 存在 localStorage 的键名 */
     keyStorage: 'foryouos.ai.key',
     /** 上一次的查询记忆（便于刷新后回看） */
@@ -45,7 +80,17 @@
       { name: '必应', site: '' },
       { name: '百度', site: '' },
       { name: '搜狗', site: 'sogou.com' },
-      { name: '微信公众号', site: 'mp.weixin.qq.com' },
+      {
+        name: '微信公众号',
+        site: 'weixin.sogou.com',
+        /* ⚠️ 微信这一路**必须走搜狗的微信搜索入口**，不要用 site:mp.weixin.qq.com。
+           原因：公众号是封闭生态，微信文章不被通用搜索引擎收录，
+           直接限定 mp.weixin.qq.com 基本搜不到东西；
+           而搜狗有微信的数据授权，它的微信搜索（weixin.sogou.com/weixin?type=2&query=…）
+           才是能拿到公众号文章的入口。用户明确指定了这个接口。 */
+        hint: '微信文章不被通用搜索引擎收录，请改走**搜狗的微信搜索**入口' +
+              '（weixin.sogou.com/weixin，type=2 表示搜文章）'
+      },
       { name: '知乎', site: 'zhihu.com' }
     ]
   };
@@ -96,15 +141,46 @@
     return k.slice(0, 6) + '••••••••••••' + k.slice(-4);
   }
 
+  /* --------------------------- 模型的选择 --------------------------- */
+
+  /** 这次该先用哪个模型：优先上次真的搜到了的那个，其次按候选顺序 */
+  function currentModel() {
+    var saved = read(CFG.modelStorage);
+    if (saved && CFG.modelCandidates.indexOf(saved) >= 0) { return saved; }
+    return CFG.modelCandidates[0];
+  }
+
+  /** 记住"这个模型真的触发了检索"，下次直接用 */
+  function rememberModel(m) { store(CFG.modelStorage, m); }
+
+  /** 取下一个还没试过的候选；没有了返回 null */
+  function nextUntriedModel(tried) {
+    for (var i = 0; i < CFG.modelCandidates.length; i++) {
+      if (tried.indexOf(CFG.modelCandidates[i]) < 0) { return CFG.modelCandidates[i]; }
+    }
+    return null;
+  }
+
   /* ---------------------------- 提示词构造 ---------------------------- */
 
-  function buildPrompt(keyword) {
+  /**
+   * 任务说明 —— 放进请求的 instructions 字段（服务端会把它插成第一条 system message）。
+   *
+   * ⚠️ **刻意不把用户关键词塞进来**，这是被"不搜"坑出来的：
+   * 深寻的服务端检索是**模型自主决定搜不搜**的（tool_choice 默认 auto）。
+   * 如果把整段任务说明（"你是采集器…请做联网检索…"）当作 input，
+   * 模型会把它读成一个"格式化任务"，判断无需实时信息，于是压根不去检索；
+   * 而把关键词本身作为 input 的一个**直接提问**，它才会触发检索。
+   * instructions 放长说明、input 只放关键词 —— 这也正是官方示例的结构。
+   */
+  function buildInstructions() {
     var lines = [];
-    lines.push('你是搜索结果的采集与质量分析器。请针对下面的关键词做**联网检索**，');
-    lines.push('并优先覆盖这些中文平台（能用 site: 限定的就分别检索一次，再合并去重）：');
+    lines.push('你是搜索结果的采集与质量分析器。用户会给你一个关键词，');
+    lines.push('你必须**先联网检索**再回答，并优先覆盖这些中文平台（能用 site: 限定的就分别检索一次，再合并去重）：');
     for (var i = 0; i < CFG.platforms.length; i++) {
       var p = CFG.platforms[i];
-      lines.push('  ' + p.name + (p.site ? '（site:' + p.site + '）' : '（通用网页）'));
+      lines.push('  ' + p.name + (p.site ? '（site:' + p.site + '）' : '（通用网页）') +
+                 (p.hint ? ' —— ' + p.hint : ''));
     }
     lines.push('');
     lines.push('检索完成后，按「内容质量 + 与关键词的相关度」重新排序。');
@@ -120,8 +196,6 @@
                '"snippet":"一句话摘要，40 字内","score":85,"reason":"简短排序理由，20 字内"}],' +
                '"summary":"对这批结果的整体判断，60 字内"}');
     lines.push('最多 ' + CFG.maxItems + ' 条，按 score 从高到低。score 是 0-100 的整数。');
-    lines.push('');
-    lines.push('用户关键词：' + keyword);
     return lines.join('\n');
   }
 
@@ -153,6 +227,27 @@
     var s = t.indexOf('{'), e = t.lastIndexOf('}');
     if (s < 0 || e <= s) { return null; }
     try { return JSON.parse(t.slice(s, e + 1)); } catch (err) { return null; }
+  }
+
+  /**
+   * 数一数响应里到底执行了几次联网检索。
+   *
+   * 这条诊断是整个模块最关键的判断依据，原因是：
+   *   **DeepSeek 对不认识的参数是静默忽略的**（官方明确说过"传了不认识的参数不会报错、自动忽略"）。
+   *   所以如果服务端没有接受 tools 里的 web_search，请求照样成功、模型照样回答，
+   *   只是它手里没有检索结果，只能凭记忆答 —— 再叠加我们"绝不许编造"的硬约束，
+   *   它就如实回一句"未实际联网检索到结果，按要求不编造"。
+   *
+   *   这和"真的执行了检索但没找到合适的网页"是**完全不同的两件事**：
+   *   前者要改模型/参数，后者只要换个关键词。所以必须在界面上分开提示。
+   */
+  function countWebSearch(data) {
+    var out = (data && data.output) || [], n = 0;
+    for (var i = 0; i < out.length; i++) {
+      var t = (out[i] && out[i].type) || '';
+      if (t.indexOf('web_search') >= 0) { n++; }
+    }
+    return n;
   }
 
   /** 兜底：模型没按 JSON 输出时，至少把纯文本当成一段摘要展示 */
@@ -258,7 +353,7 @@
     listBox.appendChild(frag);
   }
 
-  function renderAll(result, keyword) {
+  function renderAll(result, keyword, searched, outTypes, usageText, tried, queries) {
     state.items = result.items;
     state.keyword = keyword;
     if (barQuery) { barQuery.textContent = keyword; }
@@ -266,17 +361,121 @@
 
     for (var i = 0; i < result.items.length; i++) { insertCard(result.items[i], i); }
 
-    if (!result.items.length) {
-      if (result.summary) {
-        setStatus('<p class="ai-note">' + esc(result.summary) + '</p>', 'empty');
+    /* ---------- 情况一：服务端压根没执行检索（最需要说清的一种） ---------- */
+    if (!searched) {
+      // 把响应里实际的 output 类型与 usage 直接显示出来 —— 不用开控制台就能看着排查
+      var shown = '<br><span class="ai-hint">本次响应的 output 项类型：' +
+                  '<code>' + esc(outTypes || '(空)') + '</code>' +
+                  '（正常联网检索时这里应当出现 <code>web_search_call</code>）' +
+                  (usageText ? '；usage：<code>' + esc(usageText) + '</code>' : '') +
+                  '；完整原始响应可在控制台查看：<code>__fyAiLastResponse</code></span>';
+      if (result.items.length) {
+        // 没检索却返回了链接 —— 这些链接很可能是模型凭记忆拼的，必须警示而不是当成结果展示
+        setStatus('⚠️ 这次**没有真正联网检索**（服务端未执行 web_search 工具），' +
+          '下面这些链接来自模型的记忆、**不保证真实可达**，请自行核实。' +
+          shown + '<br><span class="ai-hint">' + diagHint(tried) + '</span>', 'warn');
       } else {
-        setStatus('<p class="ai-note">没有检索到可用的网页。换个说法或更具体的关键词再试一次。</p>', 'empty');
+        setStatus('⚠️ 这次**没有真正联网检索** —— 服务端没有执行 web_search 工具，' +
+          '模型手里没有检索结果，在"不许编造"的约束下它就如实回复了没找到。' +
+          '<br><span class="ai-hint">注意这是「没搜」而不是「没搜到」，换个关键词也没用。' +
+          diagHint(tried) + '</span>' + shown, 'error');
       }
       return;
     }
-    var head = '<p class="ai-note">共 ' + result.items.length + ' 条，已按内容质量与相关度排序';
+
+    /* ---------- 情况二：检索执行了，只是没找到可用网页 ---------- */
+    if (!result.items.length) {
+      var tip = '已执行 ' + searched + ' 次联网检索，但没有拿到可用的网页。' +
+                '换个说法、更具体的关键词，或减少平台限定再试。';
+      if (result.summary) { tip += '<br>' + esc(result.summary); }
+      setStatus(tip, 'empty');
+      return;
+    }
+
+    /* ---------- 情况三：正常拿到结果 ---------- */
+    var head = '共 ' + result.items.length + ' 条，已按内容质量与相关度排序' +
+               '（执行了 ' + searched + ' 次联网检索）';
     if (result.summary) { head += '。' + esc(result.summary); }
-    setStatus(head + '</p>', 'ok');
+    /* 把模型实际用过的检索词摊开给用户看 —— 平台的 site: 引导是否生效，看这里最直接。
+       服务端不暴露它用的是哪家搜索引擎，所以这串 queries 是唯一能看到"它怎么搜的"的地方。 */
+    var extra = '';
+    if (queries && queries.length) {
+      var li = '';
+      for (var q = 0; q < queries.length; q++) { li += '<li>' + esc(queries[q]) + '</li>'; }
+      extra = '<details class="ai-queries"><summary>它实际用过的 ' + queries.length +
+              ' 个检索词（平台引导是否生效看这里）</summary><ul>' + li + '</ul></details>';
+    }
+    setStatus('<p class="ai-note">' + head + '</p>' + extra, 'ok');
+  }
+
+  /** 把 usage 里的关键计数抽出来 —— 联网检索是按次数计费的，这里能看出到底搜没搜 */
+  function describeUsage(data) {
+    var u = (data && data.usage) || {};
+    var bits = [];
+    if (u.input_tokens != null) { bits.push('输入 ' + u.input_tokens); }
+    if (u.output_tokens != null) { bits.push('输出 ' + u.output_tokens); }
+    // 若服务端回了联网检索的次数（不同实现字段名不同，逐个找一遍）
+    var st = u.server_tool_use || u.tool_usage || {};
+    for (var k in st) {
+      if (Object.prototype.hasOwnProperty.call(st, k)) { bits.push(k + ' ' + st[k]); }
+    }
+    var od = u.output_tokens_details || {};
+    if (od.reasoning_tokens) { bits.push('其中思考 ' + od.reasoning_tokens); }
+    return bits.join(' / ');
+  }
+
+  /** 「没搜」时给出的排查提示 + 怎么把原始响应调出来看 */
+  function diagHint(tried) {
+    var list = (tried && tried.length) ? tried.join(' → ') : CFG.modelCandidates.join(' / ');
+    return '已把 tools 与 tool_choice 成对传齐，并把长说明放进了 instructions、input 只留关键词；' +
+           '联网工具也已依次在模型 <code>' + esc(list) + '</code> 上试过。' +
+           '若这些都没让 output 里出现 <code>web_search_call</code>，' +
+           '基本可以判定该 key / 账号（或当前端点上）尚未开放服务端联网检索 —— ' +
+           '下一步需要换一个真正返回搜索结果的搜索 API（如博查 / Tavily），' +
+           '但那会是**第二个 key**，要不要做由你定。';
+  }
+
+  /**
+   * 把模型**实际用过的检索词**与它主动打开的页面收集出来。
+   *
+   * 这是回答"它到底怎么搜的"唯一的实证来源。要点：
+   *   · DeepSeek 的检索在**服务端**执行，客户端只拿到「动作记录」；
+   *   · 它**不暴露用的是哪家搜索引擎** —— 所以你没法指定"用必应还是百度",
+   *     我们的 site: 引导最终是通过**影响它生成的这些 queries**来间接生效的；
+   *   · search 动作带一组 queries（模型自己拟的检索词，常常多路并行），
+   *     open_page 动作带它决定深入打开的 URL。
+   * 把这串列出来，就能直接看出平台引导有没有被采纳。
+   */
+  function collectQueries(data) {
+    var out = (data && data.output) || [], res = [];
+    for (var i = 0; i < out.length; i++) {
+      var it = out[i];
+      if (!it || String(it.type || '').indexOf('web_search') < 0) { continue; }
+      var act = it.action || {};
+      var qs = act.queries || [];
+      for (var j = 0; j < qs.length; j++) {
+        var q = String(qs[j] || '').trim();
+        // 服务端会在 query 尾部拼一个自己的回调标记，展示时剥掉
+        q = q.replace(/[\s,]*ws_call_id=\S*\s*$/, '').trim();
+        if (q && res.indexOf(q) < 0) { res.push(q); }
+      }
+      if (act.url) {
+        var u = String(act.url).replace(/#?ws_call_id=[^#\s]*/g, '').trim();
+        if (u && res.indexOf(u) < 0) { res.push('（深入打开）' + u); }
+      }
+    }
+    return res;
+  }
+
+  /** 把响应里 output 的项类型列出来 —— 直接显示在界面上，不用开控制台就能看着排查 */
+  function describeOutput(data) {
+    var out = (data && data.output) || [];
+    if (!out.length) { return '(output 为空)'; }
+    var types = [];
+    for (var i = 0; i < out.length; i++) {
+      types.push((out[i] && out[i].type) || '?');
+    }
+    return types.join(' / ');
   }
 
   /* ---------------------------- key 设置区 ---------------------------- */
@@ -385,36 +584,70 @@
       global.clearTimeout(timer);
     }
 
-    global.fetch(CFG.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + getKey()
-      },
-      body: JSON.stringify({
-        model: CFG.model,
-        input: buildPrompt(kw),
-        tools: [{ type: 'web_search' }]
-      }),
-      signal: ctl ? ctl.signal : undefined
-    }).then(function (res) {
-      return res.text().then(function (body) {
-        var data = null;
-        try { data = JSON.parse(body); } catch (e) { data = null; }
-        if (!res.ok) {
-          var msg = (data && (data.error && (data.error.message || data.error.code))) ||
-                    ('HTTP ' + res.status);
-          var err = new Error(msg);
-          err.status = res.status;
-          throw err;
+    /** 依次尝试候选模型：只有"一次都没搜"时才继续往下试，真搜到了就不再花钱。 */
+    var tried = [];
+
+    function attempt(model) {
+      tried.push(model);
+      var payload = {
+        model: model,
+        /* ⚠️ instructions / input 分离是刻意为之，见 buildInstructions 的注释：
+           长说明放 instructions，input 只放关键词本身，让它成为一个"需要最新信息的提问"。
+           把长说明塞进 input 会让模型判断无需检索 —— 实测踩过这个坑。 */
+        instructions: buildInstructions(),
+        input: kw,
+        // tools 与 tool_choice 必须成对：强制作业要求 tools 里含 web_search，否则 400
+        tools: [{ type: CFG.searchTool }]
+      };
+      if (CFG.forceSearch) { payload.tool_choice = { type: CFG.searchTool }; }
+
+      return global.fetch(CFG.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + getKey()
+        },
+        body: JSON.stringify(payload),
+        signal: ctl ? ctl.signal : undefined
+      }).then(function (res) {
+        return res.text().then(function (body) {
+          var data = null;
+          try { data = JSON.parse(body); } catch (e) { data = null; }
+          if (!res.ok) {
+            var msg = (data && (data.error && (data.error.message || data.error.code))) ||
+                      ('HTTP ' + res.status);
+            var err = new Error(msg);
+            err.status = res.status;
+            err.model = model;
+            throw err;
+          }
+          return data;
+        });
+      }).then(function (data) {
+        global.__fyAiLastResponse = data;
+        var n = countWebSearch(data);
+        if (n > 0) {
+          // 这个模型真的搜了 —— 记下来，下次直接用，不再无谓地试其它模型
+          rememberModel(model);
+        } else if (CFG.autoTryModels) {
+          var nm = nextUntriedModel(tried);
+          if (nm) {
+            setStatus('<span class="ai-spin" aria-hidden="true"></span>' +
+              '模型 ' + esc(model) + ' 没有执行联网检索，改用 ' + esc(nm) + ' 重试…', 'loading');
+            return attempt(nm);
+          }
         }
-        return data;
+        return { data: data, searched: n };
       });
-    }).then(function (data) {
+    }
+
+    attempt(currentModel()).then(function (r) {
       finish();
-      var parsed = extractJson(readOutputText(data));
-      var result = normalize(parsed || asFallbackItems(readOutputText(data)));
-      renderAll(result, kw);
+      var text = readOutputText(r.data);
+      var parsed = extractJson(text);
+      var result = normalize(parsed || asFallbackItems(text));
+      renderAll(result, kw, r.searched, describeOutput(r.data), describeUsage(r.data),
+                tried, collectQueries(r.data));
     }).catch(function (err) {
       finish();
       var status = err && err.status;
@@ -425,7 +658,8 @@
         html = 'API Key 无效或已被撤销。请点右上角「更换」重新填一把。' +
                '<br><span class="ai-hint">能收到 401 说明网络链路是通的，只是 Key 不对。</span>';
       } else if (status === 402 || status === 403) {
-        html = '账户余额不足或无权访问该模型（' + CFG.model + '）。请检查 DeepSeek 的额度。';
+        html = '账户余额不足或无权访问该模型（' + esc(err.model || CFG.modelCandidates[0]) + '）。' +
+               '请检查 DeepSeek 的额度；也可以换个模型再试。';
       } else if (status === 429) {
         html = '触发限流了，稍等十几秒再试。';
       } else if (status >= 500) {
