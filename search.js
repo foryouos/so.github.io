@@ -58,7 +58,12 @@
       { id: 'bing',     name: '必应',   url: 'https://cn.bing.com/search',      param: 'q',       extra: {},                       suggest: 'bing'  },
       { id: 'baidu',    name: '百度',   url: 'https://www.baidu.com/s',         param: 'wd',      extra: {},                       suggest: 'baidu' },
       { id: 'google',   name: 'Google', url: 'https://www.google.com/search',   param: 'q',       extra: {},                       suggest: null    },
-      { id: 'zhihu',    name: '知乎',   url: 'https://www.zhihu.com/search',    param: 'q',       extra: { type: 'content' },      suggest: null    },
+      /* AI 搜索是「伪引擎」：不跳转、不拼 URL，而是交给 ai-search.js 打开右侧抽屉。
+         它必须留在引擎表里，标签栏才会自动生成；url/param 留空串，
+         submit() 里对 id === 'ai' 走单独分支，绝不会落到 buildSearchUrl。
+         没有抽屉的页面（如 mobile.html）会在 boot() 里把这一项摘掉。 */
+      { id: 'ai',       name: 'AI 搜索', url: '',                              param: '',        extra: {},                       suggest: 'bing',
+        ai: true, placeholder: '输入关键词，让 AI 跨平台找并排序' },
       { id: 'bilibili', name: 'B站',    url: 'https://search.bilibili.com/all', param: 'keyword', extra: {},                       suggest: null    },
       { id: 'github',   name: 'GitHub', url: 'https://github.com/search',       param: 'q',       extra: { type: 'repositories' }, suggest: null    },
       { id: 'douban',   name: '豆瓣',   url: 'https://www.douban.com/search',   param: 'q',       extra: {},                       suggest: null    }
@@ -95,10 +100,13 @@
       '<circle cx="12" cy="12" r="7.2" stroke="#4285F4" stroke-dasharray="11.3 33.9" transform="rotate(-50 12 12)"/>' +
       '</g><path d="M12 10.4h7.5v3.2H12z" fill="#4285F4"/></svg>',
 
-    zhihu:
-      '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="7" fill="#0084ff"/>' +
-      '<text x="12" y="17.4" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" ' +
-      'font-size="14" font-weight="700" fill="#fff">知</text></svg>',
+    /* AI 搜索：深墨绿底 + 荧光青「四角星」，刻意呼应全站悬浮态的 HUD 配色。
+       （原「知乎」引擎与它的「知」字标已按需求移除，知乎现由 AI 搜索跨平台覆盖。） */
+    ai:
+      '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="7" fill="#0f2b25"/>' +
+      '<path d="M10.9 4.5l1.62 4.28 4.28 1.62-4.28 1.62L10.9 16.3l-1.62-4.28L5 10.4l4.28-1.62z" ' +
+      'fill="#00e5b0"/>' +
+      '<circle cx="17.7" cy="6.3" r="1.45" fill="#5ee7c3"/></svg>',
 
     bilibili:
       '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="7" fill="#00a1d6"/>' +
@@ -312,7 +320,7 @@
       rememberEngineId(id);
       paintChips();
       paintLogo(engine);
-      input.placeholder = '在' + engine.name + '中搜索';
+      input.placeholder = engine.placeholder || ('在' + engine.name + '中搜索');
       hideSuggest();
       if (focusInput) { input.focus(); }
     }
@@ -406,9 +414,16 @@
       }
       input.value = value;
       var engine = getEngine(engineId) || getEngine(CFG.defaultEngine);
-      var url = buildSearchUrl(engine, value);
       hideSuggest();
       updateClear();
+
+      // AI 搜索：不跳转、不拼 URL，交给 ai-search.js 打开右侧抽屉
+      if (engine && engine.ai) {
+        if (global.FYAI && global.FYAI.ask) { global.FYAI.ask(value); }
+        return;
+      }
+
+      var url = buildSearchUrl(engine, value);
       if (CFG.openInNewTab) {
         global.open(url, '_blank', 'noopener');
       } else {
@@ -530,6 +545,14 @@
   };
 
   function boot() {
+    // 没有右侧抽屉的页面（如 mobile.html）不提供 AI 搜索：
+    // 直接从引擎表里摘掉，标签栏就不会渲染出这一项，也不用改两端的 HTML。
+    if (!doc.getElementById('ai-panel')) {
+      for (var i = engines.length - 1; i >= 0; i--) {
+        if (engines[i].ai) { engines.splice(i, 1); }
+      }
+      if (!getEngine(CFG.defaultEngine)) { CFG.defaultEngine = 'bing'; }
+    }
     init();
     // 同页存在多个搜索区时可继续调用：FYSearch.init({ root: '#other' })
   }

@@ -788,3 +788,358 @@ input[type="text"] {
 
 
 /*菜单树代码测试*/
+
+/* ==========================================================================
+   AI 搜索：右侧「悬浮窗体」
+   --------------------------------------------------------------------------
+   形态上刻意**不做贴边的抽屉**，而是一张浮在画面上的窗体：
+   上下左右都留出间距（所以它和视口四边都不接触），圆角 + 完整描边 + 双层投影，
+   看起来像浮在背景插画之上的一张卡片。
+
+   为什么这样更合适：贴边抽屉会和视口边缘"焊死"，
+   而这页的视觉主体是整幅插画 —— 留白 + 浮起 + 圆角才能让窗体成为**画面里的一层**，
+   而不是把画面从中间切开的隔断。
+
+   与背景兼容的做法：
+     · 面用 93% 白（不是纯白）—— 暖黄插画会淡淡透出来，衔接不生硬；
+     · 投影双层：大范围弥散（远）＋ 贴边细影（近），才有真正的浮起体积感；
+     · 配色沿用站点绿系，只有强调处用 --hud 青绿，与全站悬浮态的 HUD 语言一致。
+   z-index 900：必须高于搜索联想下拉(400) 与图标行(200)，否则会被压在下面。
+   ========================================================================== */
+#ai-panel {
+    position: fixed;
+    /* 四周间距随视口缩放，但不小于 16px —— 小窗口下也保证四边都看得到留白 */
+    top: clamp(16px, 3vh, 34px);
+    right: clamp(16px, 2.4vw, 38px);
+    bottom: clamp(16px, 3vh, 34px);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    width: clamp(400px, 46vw, 720px);
+    overflow: hidden;                       /* 让顶部条的底色跟着圆角走 */
+    background: rgb(255 255 255 / 93%);
+    border: 1px solid rgb(177 221 188 / 85%);
+    border-radius: 18px;
+    box-shadow: 0 26px 70px rgb(20 53 42 / 26%), 0 2px 8px rgb(20 53 42 / 8%);
+    /* 收起时要完全移出视口 —— 平移量必须是「自身宽度 + 那段右边距」，
+       只写 100% 的话会因为右边距的存在而在视口里露出一条边。 */
+    transform: translateX(calc(100% + clamp(16px, 2.4vw, 38px)));
+    transition: transform .36s cubic-bezier(.16, 1, .3, 1);
+    will-change: transform;
+}
+/* 必须显式写：上面的 display:flex 优先级高于 UA 的 [hidden]{display:none}，
+   不补这条的话面板即使带 hidden 属性也照样显示。 */
+#ai-panel[hidden] { display: none; }
+#ai-panel.is-open { transform: translateX(0); }
+
+/* ---- 顶部工具条 ---- */
+.ai-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 16px 13px 20px;
+    border-bottom: 1px solid rgb(177 221 188 / 65%);
+    background: linear-gradient(180deg, rgb(238 248 241 / 96%), rgb(255 255 255 / 88%));
+}
+.ai-title {
+    flex: 0 0 auto;
+    font: 700 16px/1 楷体, KaiTi, serif;
+    color: #1f2d24;
+    letter-spacing: .02em;
+}
+.ai-query {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 13px/1.3 楷体, KaiTi, serif;
+    color: #6fbf8a;
+}
+.ai-keybar {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 11px/1 Consolas, Monaco, monospace;
+    color: #8aa79a;
+}
+.ai-key-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--hud);
+}
+.ai-key-clear {
+    padding: 0;
+    font: inherit;
+    color: #6fbf8a;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.ai-clear,
+.ai-close {
+    flex: 0 0 auto;
+    height: 30px;
+    font-family: inherit;
+    color: #3f6b4d;
+    background: rgb(255 255 255 / 82%);
+    border: 1px solid #b1ddbc;
+    border-radius: 999px;
+    cursor: pointer;
+    outline: none;
+    transition: color .18s, background .18s, border-color .18s, box-shadow .18s;
+}
+.ai-clear { padding: 0 14px; font-size: 13px; }
+.ai-close { width: 30px; padding: 0; font-size: 19px; line-height: 1; }
+.ai-clear:hover,
+.ai-close:hover {
+    color: #073b30;
+    background: #fff;
+    border-color: var(--hud);
+    box-shadow: 0 0 0 3px var(--hud-faint);
+}
+.ai-clear:focus-visible,
+.ai-close:focus-visible {
+    box-shadow: 0 0 0 3px var(--hud-glow);
+}
+
+/* ---- 状态条（加载 / 出错 / 空结果 / 总述） ---- */
+.ai-status {
+    flex: 0 0 auto;
+    padding: 11px 20px;
+    font: 13px/1.65 楷体, KaiTi, serif;
+    color: #3f6b4d;
+    border-bottom: 1px solid rgb(177 221 188 / 40%);
+}
+.ai-status.is-error {
+    color: #9c332c;
+    background: rgb(255 241 239 / 85%);
+    border-bottom-color: rgb(226 175 170 / 50%);
+}
+.ai-status.is-empty { color: #6b7d73; }
+.ai-note { margin: 0; }
+.ai-hint { color: #8aa79a; font-size: 12px; }
+/* 网络层失败时的排查清单（AI 搜索报「请求没能发出」用） */
+.ai-hint-list {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    font: 12px/1.72 楷体, KaiTi, serif;
+    color: #7b6a68;
+}
+.ai-hint-list li { margin-bottom: 3px; }
+.ai-hint-list b { color: #9c332c; }
+.ai-diag {
+    margin-top: 9px;
+    font: 12px/1.6 楷体, KaiTi, serif;
+    color: #8aa79a;
+}
+.ai-diag summary {
+    color: #6fbf8a;
+    cursor: pointer;
+    outline: none;
+}
+.ai-diag-code {
+    display: block;
+    margin: 6px 0;
+    padding: 8px 10px;
+    font: 11px/1.65 Consolas, Monaco, monospace;
+    color: #2c4a3c;
+    background: rgb(240 248 243 / 92%);
+    border: 1px solid rgb(177 221 188 / 60%);
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    user-select: text;
+}
+.ai-spin {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    margin-right: 8px;
+    vertical-align: -1px;
+    border: 2px solid rgb(111 191 138 / 32%);
+    border-top-color: var(--hud);
+    border-radius: 50%;
+    animation: ai-spin .8s linear infinite;
+}
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+
+/* ---- 未配置 key 时的引导 ---- */
+.ai-gate { padding: 2px 0; }
+.ai-gate-title {
+    margin: 0 0 8px;
+    font: 700 15px/1.4 楷体, KaiTi, serif;
+    color: #14352a;
+}
+.ai-gate-desc {
+    margin: 0 0 12px;
+    font: 13px/1.72 楷体, KaiTi, serif;
+    color: #40584c;
+}
+.ai-gate-desc b { color: #2f7a45; }
+.ai-gate-desc code {
+    padding: 1px 5px;
+    font: 12px/1 Consolas, Monaco, monospace;
+    color: #2f7a45;
+    background: rgb(177 221 188 / 32%);
+    border-radius: 4px;
+}
+.ai-gate-row { display: flex; gap: 8px; }
+.ai-key-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 38px;
+    padding: 0 12px;
+    font: 13px/1 Consolas, Monaco, monospace;
+    color: #1f2d24;
+    background: #fff;
+    border: 1px solid #b1ddbc;
+    border-radius: 9px;
+    outline: none;
+    transition: border-color .18s, box-shadow .18s;
+}
+.ai-key-input:focus {
+    border-color: #6fbf8a;
+    box-shadow: 0 0 0 3px rgb(111 191 138 / 22%);
+}
+.ai-key-save {
+    flex: 0 0 auto;
+    height: 38px;
+    padding: 0 16px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #fff;
+    background: #6fbf8a;
+    border: 0;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background .18s;
+}
+.ai-key-save:hover { background: #5cae78; }
+.ai-gate-tip {
+    margin: 12px 0 0;
+    font: 12px/1.7 楷体, KaiTi, serif;
+    color: #7b8f84;
+}
+.ai-gate-tip b { color: #9c332c; }
+
+/* ---- 结果列表：卡片由 JS 按 <template> 动态插入 ---- */
+.ai-list {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 30px;
+}
+.ai-card {
+    --i: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: ai-card-in .32s cubic-bezier(.16, 1, .3, 1) forwards;
+    animation-delay: calc(var(--i) * 45ms);
+}
+@keyframes ai-card-in {
+    to { opacity: 1; transform: none; }
+}
+.ai-card-link {
+    display: block;
+    padding: 12px 14px 13px;
+    color: inherit;
+    text-decoration: none;
+    background: rgb(255 255 255 / 88%);
+    border: 1px solid rgb(177 221 188 / 70%);
+    border-radius: 12px;
+    transition: background .18s, border-color .18s, box-shadow .18s, transform .18s;
+}
+.ai-card-link:hover {
+    background: #fff;
+    border-color: #6fbf8a;
+    box-shadow: 0 8px 20px rgb(28 60 40 / 14%), 0 0 0 3px rgb(111 191 138 / 12%);
+    transform: translateY(-1px);
+}
+.ai-card-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    font: 12px/1 楷体, KaiTi, serif;
+    color: #6b8a78;
+}
+.ai-card-favicon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+.ai-card-badge {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font: 700 11px/1 Arial, Helvetica, sans-serif;
+    color: #fff;
+    background: #6fbf8a;
+    border-radius: 4px;
+}
+.ai-card-url {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ai-card-rank {
+    flex: 0 0 auto;
+    font: 11px/1 Consolas, Monaco, monospace;
+    color: #b1c7ba;
+}
+.ai-card-score {
+    flex: 0 0 auto;
+    padding: 1px 6px;
+    font: 700 11px/1.5 Arial, Helvetica, sans-serif;
+    color: #073b30;
+    background: rgb(0 229 176 / 20%);
+    border-radius: 4px;
+}
+.ai-card-title {
+    margin: 0 0 5px;
+    font: 700 15px/1.46 楷体, KaiTi, serif;
+    color: #14352a;
+}
+.ai-card-snippet {
+    margin: 0;
+    font: 13px/1.62 楷体, KaiTi, serif;
+    color: #40584c;
+}
+.ai-card-reason {
+    margin: 6px 0 0;
+    font: 12px/1.5 楷体, KaiTi, serif;
+    color: #6fbf8a;
+}
+
+/* 窄屏：窗体仍保留四周留白，只是把留白收窄（不做成贴边抽屉，形态保持一致） */
+@media screen and (max-width: 819px) {
+    #ai-panel {
+        top: 10px;
+        right: 10px;
+        bottom: 10px;
+        width: calc(100% - 20px);
+        border-radius: 14px;
+        transform: translateX(calc(100% + 14px));
+    }
+}
+/* 尊重系统的「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+    #ai-panel,
+    .ai-card { transition: none; animation: none; }
+    .ai-card { opacity: 1; transform: none; }
+    .ai-spin { animation-duration: 2.4s; }
+}
