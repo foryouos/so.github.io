@@ -10,8 +10,10 @@ html{
     overflow: hidden;
 }
 body {
-      background-color: white;
-      background-image: url("https://i.imgtg.com/2023/03/09/YQdA1.png");
+      /* 背景改成带原图回退的 CSS 变量：主题模块在 head 同步阶段把变量写到 documentElement，
+         变量未定义（无 JS / 未自定义）时 100% 回到原来的插画背景。 */
+      background-color: var(--fy-bg-color, white);
+      background-image: var(--fy-bg-image, url("https://i.imgtg.com/2023/03/09/YQdA1.png"));
       background-size: cover;
       background-repeat: no-repeat;
       position: relative;
@@ -731,8 +733,8 @@ input[type="text"] {
 }
 @media screen and (max-width: 819px) {
     body {
-        background-color:white;
-        background-image: url("https://i.imgtg.com/2023/03/09/YQVCD.png");
+        background-color: var(--fy-bg-color, white);
+        background-image: var(--fy-bg-image, url("https://i.imgtg.com/2023/03/09/YQVCD.png"));
         background-size: cover;
         background-repeat: no-repeat;
         position: relative;
@@ -1180,3 +1182,42 @@ input[type="text"] {
     .ai-card { opacity: 1; transform: none; }
     .ai-spin { animation-duration: 2.4s; }
 }
+
+/* ======================== 自定义背景层 / 设置入口 / 面板容器（容器级） ========================
+   只写容器的定位与层级；面板内部样式（.fy-tab / .fy-field / .fy-btn 等）归 customize.css。
+   两个背景层都是 HTML 预置的空元素，fixed + inset:0 脱离文档流、不产生滚动条。
+   模糊只作用于背景图层，遮罩只作用于遮罩层 —— 绝不落到输入框或其任何祖先上。 */
+#fy-bg-layer,
+#fy-bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+#fy-bg-layer {
+    /* 四边外扩到 blur 上限，消除模糊边缘透底；仍是 fixed，不撑文档流、不产生滚动条 */
+    inset: -24px;
+    background-image: var(--fy-bg-image, none);
+    background-color: var(--fy-bg-color, transparent);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: blur(var(--fy-bg-blur, 0px));
+}
+#fy-bg-overlay {
+    background-color: var(--fy-bg-overlay-color, #000000);
+    opacity: var(--fy-bg-overlay, 0);
+}
+/* 设置入口：放左下角，避开右上角品牌标与右侧 AI 结果窗体；层级 850 < AI 900 < 面板 950 */
+#fy-settings-btn {
+    position: fixed;
+    left: clamp(16px, 2.4vw, 38px);
+    bottom: clamp(16px, 3vh, 34px);
+    z-index: 850;
+}
+/* 面板容器：几何与内部样式由 customize.css 提供，这里只锁层级与 hidden */
+#fy-panel {
+    position: fixed;
+    z-index: 950;
+}
+#fy-panel[hidden] { display: none; }

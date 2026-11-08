@@ -140,6 +140,8 @@
   }
 
   var engines = CFG.engines;
+  /* 跨 init 闭包保存重绘函数，供 FYSearch.refresh() 转调（03-search-spec §6.1） */
+  var refreshImpl = null;
 
   /* ------------------------------ 工具函数 ------------------------------ */
 
@@ -525,6 +527,29 @@
     applyEngine(engineId, false);
     updateClear();
     root.setAttribute('data-fy-ready', '1');
+
+    /* 供 FYSearch.refresh() 转调：engines 被 apply 改写后重绘引擎标签。
+       只复用既有闭包函数，不重新初始化、不重新绑定事件（契约 §4 / 03 §4）。 */
+    refreshImpl = function (opts) {
+      var id = engineId;
+      if ((opts && opts.forceDefault) || !getEngine(id)) {
+        id = getEngine(CFG.defaultEngine) ? CFG.defaultEngine
+           : (engines[0] && engines[0].id) || 'bing';
+      }
+      var val = input.value;
+      var focused = (doc.activeElement === input);
+      var ss = null, se = null;
+      if (focused) { try { ss = input.selectionStart; se = input.selectionEnd; } catch (e) {} }
+      engineId = id;
+      renderChips();
+      applyEngine(id, false);
+      input.value = val;
+      updateClear();
+      if (focused) {
+        input.focus();
+        if (ss !== null) { try { input.setSelectionRange(ss, se); } catch (e) {} }
+      }
+    };
   }
 
   /* ------------------------------- 对外接口 ------------------------------- */
@@ -541,10 +566,12 @@
       var engine = getEngine(id);
       return LOGOS[id] || (engine ? fallbackLogo(engine) : '');
     },
-    init: init
+    init: init,
+    refresh: function (opts) { if (refreshImpl) { refreshImpl(opts); } }
   };
 
   function boot() {
+    if (global.FYSearchCustomize && global.FYSearchCustomize.apply) { global.FYSearchCustomize.apply(CFG, engines); }
     // 没有右侧抽屉的页面（如 mobile.html）不提供 AI 搜索：
     // 直接从引擎表里摘掉，标签栏就不会渲染出这一项，也不用改两端的 HTML。
     if (!doc.getElementById('ai-panel')) {

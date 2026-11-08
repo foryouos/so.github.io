@@ -3,8 +3,10 @@
     width: 100%;
 }
 body {
-    background-color:white;
-    background-image: url("https://i.imgtg.com/2023/03/24/9IkZB.jpg");
+    /* 背景改成带原图回退的 CSS 变量：主题模块在 head 同步阶段把变量写到 documentElement，
+       变量未定义（无 JS / 未自定义）时 100% 回到原来的照片背景。 */
+    background-color: var(--fy-bg-color, white);
+    background-image: var(--fy-bg-image, url("https://i.imgtg.com/2023/03/24/9IkZB.jpg"));
     background-size: cover;
     background-repeat: no-repeat;
     background-position: bottom;
@@ -256,6 +258,43 @@ input[type="text"] {
 .so-input-wrap.is-shake {
     animation: fy-shake .3s ease;
 }
+
+/* ======================== 自定义背景层 / 设置入口 / 面板容器（容器级） ========================
+   与 PC 端同一套约定；内部样式归 customize.css。移动端背景层是 span，
+   fixed 定位后同样脱离文档流、不占高度、不产生滚动条。 */
+#fy-bg-layer,
+#fy-bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    display: block;
+}
+#fy-bg-layer {
+    /* 与 PC 端同一段规则：inset 外扩消除模糊边缘透底，回退值保证 default 时本层透明 */
+    inset: -24px;
+    background-image: var(--fy-bg-image, none);
+    background-color: var(--fy-bg-color, transparent);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: blur(var(--fy-bg-blur, 0px));
+}
+#fy-bg-overlay {
+    background-color: var(--fy-bg-overlay-color, #000000);
+    opacity: var(--fy-bg-overlay, 0);
+}
+#fy-settings-btn {
+    position: fixed;
+    left: clamp(16px, 2.4vw, 38px);
+    bottom: clamp(16px, 3vh, 34px);
+    z-index: 850;
+}
+#fy-panel {
+    position: fixed;
+    z-index: 950;
+}
+#fy-panel[hidden] { display: none; }
 
 /* 已删除：.gallery / .gallery img（画廊三个图标）
    已删除：#footer_end（底部 Blog | GitHub）

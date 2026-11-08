@@ -58,11 +58,24 @@
     <!-- 和风天气组件已按需求移除：手机端只保留搜索区。
          原来的 WIDGET 配置块、widget.qweather.net 的脚本、以及 mobile.js（里面只有天气定位逻辑）
          都已摘掉。mobile.js 文件仍留在仓库里，将来要恢复天气，把 <script src="mobile.js"> 加回来即可。 -->
-    <script src="search.js" type="text/javascript"></script>
     <link rel="stylesheet" href="mobile.css" >
+    <link rel="stylesheet" href="customize.css" >
+    <!-- 自定义配置 / 背景主题 / 搜索引擎自定义：按契约 §6 顺序同步加载。
+         移动端不加载桌面图标渲染、AI 模块与另外两份脚本；设置面板仍依赖配置核心与 customize.js。 -->
+    <script src="settings.js" type="text/javascript"></script>
+    <script src="theme.js" type="text/javascript"></script>
+    <script src="settings-boot.js" type="text/javascript"></script>
+    <script src="search-customize.js" type="text/javascript"></script>
+    <script src="search.js" type="text/javascript"></script>
 
 </head>
 <body>
+    <!-- 自定义背景层 / 设置入口 / 面板：均为空容器。背景层用 span，
+         以维持本页「顶层带 id 的 div 恰为 2」的既有布局（搜索区 + 联想下拉）。 -->
+    <span id="fy-bg-layer"></span>
+    <span id="fy-bg-overlay"></span>
+    <button id="fy-settings-btn" type="button" aria-label="打开自定义设置" title="自定义设置"></button>
+    <aside id="fy-panel" role="dialog" aria-label="自定义设置" hidden></aside>
 
     <!--搜索框：引擎标签 + 输入框 + 联想下拉，逻辑见 search.js-->
     <!--如需打开页面时不自动弹出键盘，去掉下面 input 上的 autofocus 即可-->
@@ -94,6 +107,8 @@
 
     <!-- 画廊（博客/主页/Github 三个图标）与页脚（Blog | GitHub）已按需求移除：
          手机端只留搜索区，其余内容在窄屏上视觉上铺不开。 -->
+    <!-- 设置面板逻辑：移动端无图标行，只加载这一份；内部自行判断 DOM 就绪 -->
+    <script src="customize.js" type="text/javascript"></script>
 </body>
 
 </html>

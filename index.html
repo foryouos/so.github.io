@@ -127,14 +127,26 @@ foryouos状态栏开源项目，完全自定义化主页
       browserRedirect();
   </script>
   <link rel="stylesheet" href="index.css" >
+  <link rel="stylesheet" href="customize.css" >
+  <!-- 自定义配置 / 背景主题：按契约 §6 顺序同步加载，settings-boot.js 在 head 阶段应用背景，
+       避免首屏「先旧背景后跳变」。三者必须先于其后的搜索系列脚本。 -->
+  <script src="settings.js" type="text/javascript"></script>
+  <script src="theme.js" type="text/javascript"></script>
+  <script src="settings-boot.js" type="text/javascript"></script>
   <!-- AI 搜索模块要在 search.js 之前加载：search.js 启动时会用它判断本页是否提供 AI 搜索 -->
   <script src="ai-search.js" type="text/javascript"></script>
+  <!-- 搜索引擎自定义要在 search.js 的 boot() 之前就位 -->
+  <script src="search-customize.js" type="text/javascript"></script>
   <script src="search.js" type="text/javascript"></script>
   <script src="index.js" type="text/javascript"></script>
   <script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script>
 
 </head>
 <body id="bg">
+  <!-- 自定义背景层：由主题模块在 head 同步阶段写入 CSS 变量，这里只提供一次空容器。
+       两层都 fixed 且不占文档流；模糊只作用于背景图层，遮罩只作用于遮罩层。 -->
+  <div id="fy-bg-layer"></div>
+  <div id="fy-bg-overlay"></div>
   <div id="he-plugin-simple"></div>
     <!-- 右上角：foryouos 官网（瓶子的跋涉）的品牌标 —— 官方瓶子的形状，去掉暖黄底改透明，
          配色换成站点主题的绿白系、尺寸缩小一档，详见 assert/brand-foryouos.svg 里的注释 -->
@@ -390,5 +402,13 @@ foryouos状态栏开源项目，完全自定义化主页
     </article>
   </template>
 
+  <!-- 设置入口与面板：空容器，面板内容与内部样式由 customize.js / customize.css 注入。
+       入口放左下角，避开右上角品牌标与右侧的 AI 结果窗体。 -->
+  <button id="fy-settings-btn" type="button" aria-label="打开自定义设置" title="自定义设置"></button>
+  <aside id="fy-panel" role="dialog" aria-label="自定义设置" hidden></aside>
+
+  <!-- 桌面图标动态渲染 → 设置面板：顺序不能反，两者内部自行判断 DOM 就绪 -->
+  <script src="desktop-icons.js" type="text/javascript"></script>
+  <script src="customize.js" type="text/javascript"></script>
 </body>
 </html>

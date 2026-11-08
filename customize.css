@@ -1,0 +1,576 @@
+/*
+ * customize.css —— 自定义设置面板样式（dev-panel，任务 #10）
+ * 依据：.workbuddy/design/CONTRACT.md §5 / 01-ux-spec.md §2 §7.5 / 02 §5.7 / 06 §4
+ *
+ * 纪律（回归红线，勿破）：
+ *  1. 所有选择器以 #fy- / .fy- / body.fy-panel-open 前缀，禁止裸 button/input/[hidden]
+ *     污染 .so-* / .ai-*（契约 §5、00-constraints S20/R07）。
+ *  2. 面板展开/收起用 opacity + visibility + transform，**不用 display 硬闪**；
+ *     display:none 只出现在 [hidden] 终态规则里（契约 §5、01 §2.3）。
+ *  3. 透明底 LOGO 的浮起感只用 filter: drop-shadow；box-shadow 仅用于面板本体 /
+ *     编辑条 / 确认层这类实心窗体（契约 §5、MEMORY §5）。
+ *  4. 编辑态禁用 hover 环展开只用 .fy-edit 后代覆盖，绝不改 index.css 原规则（P7/§4.3）。
+ *  5. 新增元素统一在根层叠上下文：入口/编辑条 850 < AI 面板 900 < 设置面板 950；
+ *     既有 z-index（联想 400 / 图标行 200 / #so_fram 300）分属不同上下文，不横向比较、不改动。
+ *  6. 移动端刻意无 viewport meta、按 ~980px 虚拟视口渲染：移动端分支用固定 px，不用 vw。
+ */
+
+/* ================================================================== *
+ * 设置入口 #fy-settings-btn
+ * ================================================================== */
+#fy-settings-btn {
+  position: fixed;
+  left: clamp(16px, 1.6vw, 28px);
+  bottom: clamp(16px, 3vh, 30px);
+  z-index: 850;
+  width: 44px; height: 44px; padding: 0;
+  box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  color: #3f6b4d;
+  background: rgb(255 255 255 / 88%);
+  border: 1px solid rgb(177 221 188 / 85%);
+  cursor: pointer;
+  /* 渐进增强：无 JS / FYSettings 缺失时保持不可见不聚焦，不出现空按钮（01 §1.5） */
+  visibility: hidden; opacity: 0; pointer-events: none;
+  filter: drop-shadow(0 4px 12px rgb(20 53 42 / 16%));
+  transition: transform .2s ease, color .18s, border-color .18s,
+              background .18s, filter .18s, opacity .18s, visibility 0s linear .18s;
+}
+#fy-settings-btn.fy-ready {
+  visibility: visible; opacity: 1; pointer-events: auto;
+  transition: transform .2s ease, color .18s, border-color .18s,
+              background .18s, filter .18s, opacity .18s;
+}
+#fy-settings-btn[hidden] { display: none; }
+#fy-settings-btn svg { display: block; width: 22px; height: 22px; }
+#fy-settings-btn:hover {
+  transform: rotate(30deg) scale(1.08);
+  color: #2f7a45; background: #fff; border-color: var(--hud, #00e5b0);
+  filter: drop-shadow(0 6px 18px rgb(20 53 42 / 28%));
+}
+#fy-settings-btn:active { transform: rotate(30deg) scale(.96); }
+#fy-settings-btn.is-active { color: #2f7a45; border-color: var(--hud, #00e5b0); }
+#fy-settings-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--hud-glow, rgb(0 229 176 / 26%)), 0 0 0 1px var(--hud, #00e5b0);
+}
+.fy-mobile #fy-settings-btn {
+  left: auto; bottom: auto;
+  right: clamp(20px, 2.4vw, 38px);
+  top: clamp(20px, 3vh, 34px);
+  width: 58px; height: 58px;
+}
+.fy-mobile #fy-settings-btn svg { width: 30px; height: 30px; }
+
+/* ================================================================== *
+ * 面板 #fy-panel —— 悬浮窗体（语汇同 #ai-panel）
+ * ================================================================== */
+#fy-panel {
+  position: fixed;
+  top: clamp(16px, 3vh, 34px);
+  right: clamp(16px, 2.4vw, 38px);
+  bottom: clamp(16px, 3vh, 34px);
+  z-index: 950;
+  display: flex; flex-direction: column;
+  width: clamp(400px, 46vw, 720px);
+  max-height: calc(100vh - 2 * clamp(16px, 3vh, 34px));
+  box-sizing: border-box;
+  overflow: hidden;
+  background: rgb(255 255 255 / 93%);
+  border: 1px solid rgb(177 221 188 / 85%);
+  border-radius: 18px;
+  /* 双层投影：远弥散 + 近贴边（面板本体是实心窗体，允许 box-shadow） */
+  box-shadow: 0 26px 70px rgb(20 53 42 / 26%), 0 2px 8px rgb(20 53 42 / 8%);
+  color: #24483a;
+  font: 14px/1.6 "Microsoft YaHei", "PingFang SC", sans-serif;
+  /* 收起方向：opacity/visibility 淡出，translateX 滑出（留白量须与 right 一致） */
+  opacity: 0; visibility: hidden;
+  transform: translateX(calc(100% + clamp(16px, 2.4vw, 38px)));
+  transition: transform .36s cubic-bezier(.16, 1, .3, 1),
+              opacity .28s ease,
+              visibility 0s linear .36s;
+  will-change: transform, opacity;
+}
+#fy-panel.is-open {
+  opacity: 1; visibility: visible;
+  transform: translateX(0);
+  transition: transform .36s cubic-bezier(.16, 1, .3, 1),
+              opacity .28s ease,
+              visibility 0s;
+}
+#fy-panel[hidden] { display: none; }   /* 契约 §5 硬要求：显式终态规则 */
+
+/* 面板头 */
+.fy-panel-head {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgb(177 221 188 / 55%);
+  background: rgb(232 245 236 / 55%);
+}
+.fy-panel-title { margin: 0; font-size: 17px; font-weight: 700; color: #1f5038; }
+.fy-save-status {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 12px; color: #6a8578;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.fy-save-status[data-fy-state="ok"] { color: #2f7a45; }
+.fy-save-status[data-fy-state="error"] { color: #9c332c; }
+.fy-save-status[data-fy-state="info"] { color: #356b8a; }
+.fy-panel-head .fy-btn { flex: 0 0 auto; }
+
+/* Tab 栏 */
+.fy-tabs {
+  flex: 0 0 auto;
+  display: flex; gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgb(177 221 188 / 45%);
+}
+.fy-tab {
+  flex: 1 1 0;
+  padding: 8px 6px;
+  font-size: 14px;
+  color: #3f6b4d;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.fy-tab:hover { background: rgb(0 229 176 / 8%); }
+.fy-tab.is-active {
+  color: #1f5038; font-weight: 700;
+  background: rgb(111 191 138 / 20%);
+  border-color: rgb(177 221 188 / 85%);
+}
+.fy-tab[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.fy-tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--hud-glow, rgb(0 229 176 / 26%)), 0 0 0 1px var(--hud, #00e5b0);
+}
+
+/* 面板体（唯一滚动容器） */
+.fy-panel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 16px 24px;
+}
+.fy-pane { display: block; }
+.fy-pane[hidden] { display: none; }
+.fy-section {
+  margin: 18px 0 8px; font-size: 14px; font-weight: 700; color: #1f5038;
+  padding-bottom: 6px; border-bottom: 1px dashed rgb(177 221 188 / 70%);
+}
+
+/* ================================================================== *
+ * 通用字段 / 控件
+ * ================================================================== */
+.fy-field { margin: 0 0 14px; }
+.fy-field > .fy-label {
+  display: block; margin: 0 0 6px; font-weight: 600; color: #2c5541;
+}
+.fy-label { color: #2c5541; }
+.fy-field .fy-label-inline { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+.fy-input, .fy-select, .fy-textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 8px 10px;
+  font: inherit; font-size: 14px;
+  color: #24483a;
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid rgb(177 221 188 / 85%);
+  border-radius: 9px;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.fy-input:focus, .fy-select:focus, .fy-textarea:focus {
+  border-color: var(--hud, #00e5b0);
+  box-shadow: 0 0 0 3px var(--hud-glow, rgb(0 229 176 / 26%));
+}
+.fy-textarea { resize: vertical; min-height: 96px; font-family: monospace; font-size: 12px; }
+.fy-input[disabled], .fy-select[disabled], .fy-textarea[disabled],
+.fy-range[disabled], .fy-color[disabled] {
+  opacity: .45; cursor: not-allowed;
+  filter: grayscale(.4);
+}
+.fy-range { width: 100%; accent-color: #2f7a45; }
+.fy-color {
+  width: 46px; height: 34px; padding: 2px;
+  background: #fff; border: 1px solid rgb(177 221 188 / 85%); border-radius: 8px;
+  cursor: pointer;
+}
+.fy-switch { width: 17px; height: 17px; accent-color: #2f7a45; vertical-align: middle; }
+.fy-hint { margin: 5px 0 0; font-size: 12px; color: #6a8578; }
+.fy-error {
+  margin: 8px 0 0; padding: 8px 10px;
+  font-size: 12px; color: #9c332c;
+  background: rgb(156 51 44 / 8%);
+  border: 1px solid rgb(156 51 44 / 30%); border-radius: 8px;
+}
+.fy-error[hidden] { display: none; }
+.fy-empty {
+  margin: 10px 0; padding: 14px;
+  font-size: 13px; color: #6a8578; text-align: center;
+  background: rgb(111 191 138 / 8%); border: 1px dashed rgb(177 221 188 / 85%);
+  border-radius: 10px;
+}
+.fy-empty[hidden] { display: none; }
+.fy-pane-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* 按钮 */
+.fy-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 7px 13px;
+  font: inherit; font-size: 13px;
+  color: #2c5541;
+  background: rgb(255 255 255 / 90%);
+  border: 1px solid rgb(177 221 188 / 85%);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s, transform .12s;
+}
+.fy-btn:hover { background: #fff; border-color: var(--hud, #00e5b0); color: #1f5038; }
+.fy-btn:active { transform: translateY(1px); }
+.fy-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--hud-glow, rgb(0 229 176 / 26%)), 0 0 0 1px var(--hud, #00e5b0);
+}
+.fy-btn[disabled] { opacity: .45; cursor: not-allowed; }
+.fy-btn-primary {
+  color: #fff; font-weight: 700;
+  background: #2f7a45;
+  border-color: #2f7a45;
+}
+.fy-btn-primary:hover { background: #256238; border-color: #256238; color: #fff; }
+.fy-btn-ghost { background: transparent; border-color: rgb(177 221 188 / 70%); }
+.fy-btn-danger { color: #9c332c; border-color: rgb(156 51 44 / 45%); }
+.fy-btn-danger:hover { background: rgb(156 51 44 / 8%); color: #9c332c; border-color: #9c332c; }
+.fy-btn-icon { padding: 5px 9px; font-size: 18px; line-height: 1; }
+
+/* ================================================================== *
+ * 图标 Tab
+ * ================================================================== */
+.fy-row { margin: 0 0 16px; }
+.fy-row-title { margin: 0 0 8px; font-size: 13px; color: #2c5541; }
+.fy-icon-list { list-style: none; margin: 0; padding: 0; }
+.fy-icon-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 8px; margin: 0 0 6px;
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(177 221 188 / 55%);
+  border-radius: 10px;
+}
+.fy-icon-item.is-fy-new { animation: fy-new-flash 1.2s ease; }
+@keyframes fy-new-flash {
+  0% { background: rgb(0 229 176 / 32%); }
+  100% { background: rgb(255 255 255 / 70%); }
+}
+.fy-icon-thumb {
+  flex: 0 0 auto;
+  width: 30px; height: 30px; border-radius: 7px;
+  object-fit: contain;
+  /* 透明底缩略图：只用 drop-shadow 浮起，不叠加投影盒（契约 §5 / 自测） */
+  filter: drop-shadow(0 1px 2px rgb(20 53 42 / 18%));
+  background: rgb(111 191 138 / 10%);
+}
+/* 面板「图标 Tab」列表项的缩略兜底（与桌面图标的 .fy-icon-fallback 区分，避免撞名） */
+.fy-icon-thumb-fallback {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 7px;
+  font: 700 13px/1 monospace; color: #073b30;
+  background: rgb(111 191 138 / 16%);
+  text-shadow: 0 1px 2px #fff, 0 0 3px #fff;
+}
+/* dev-icons 桌面图标兜底（02 §5.7）：显隐由其 hidden 属性 + 内联 style.display 控制。
+   这里只写外观、绝不写默认 display:none（否则空图标 / 加载失败时兜底出不来）；
+   其内联 display:none 优先级高于本规则，有图标时隐藏仍生效。 */
+.fy-icon-fallback {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  font: 700 clamp(18px, 1.7vw, 26px)/1 monospace;
+  color: #073b30;
+  text-align: center;
+  text-shadow: 0 1px 2px #fff, 0 0 4px #fff, 0 0 8px #fff;
+  background: transparent;
+}
+.fy-icon-fallback[hidden] { display: none; }   /* hidden 属性兜底，确保显式生效 */
+.sub-icon > .fy-icon-fallback { font-size: clamp(11px, .9vw, 14px); }
+.fy-icon-meta { flex: 1 1 auto; min-width: 0; }
+.fy-icon-name { display: block; font-weight: 600; color: #24483a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fy-icon-url { display: block; font-size: 11px; color: #6a8578; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fy-badge {
+  flex: 0 0 auto; padding: 2px 7px; font-size: 11px;
+  color: #2f7a45; background: rgb(111 191 138 / 16%); border-radius: 999px;
+}
+.fy-icon-actions { flex: 0 0 auto; display: flex; gap: 5px; }
+.fy-icon-actions .fy-btn { padding: 4px 9px; font-size: 12px; }
+
+/* 内联编辑表单（面板 / 编辑条通用） */
+.fy-inline-form {
+  margin: 8px 0; padding: 12px;
+  background: rgb(232 245 236 / 60%);
+  border: 1px solid rgb(177 221 188 / 85%);
+  border-radius: 12px;
+}
+.fy-inline-form .fy-field { margin-bottom: 10px; }
+.fy-form-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fy-form-row > .fy-input { flex: 1 1 160px; width: auto; }
+.fy-form-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.fy-child-item {
+  padding: 8px; margin: 0 0 8px;
+  border: 1px dashed rgb(177 221 188 / 85%); border-radius: 9px;
+}
+.fy-child-item .fy-field { margin-bottom: 8px; }
+.fy-field-note { font-size: 11px; color: #6a8578; margin: 4px 0 0; }
+
+/* 项内删除二次确认 */
+.fy-confirm-inline {
+  margin: 8px 0; padding: 10px 12px;
+  background: rgb(156 51 44 / 8%);
+  border: 1px solid rgb(156 51 44 / 35%);
+  border-radius: 10px;
+}
+.fy-confirm-inline .fy-confirm-text { margin: 0 0 8px; font-size: 13px; color: #7a2822; }
+.fy-confirm-inline .fy-form-actions { margin-top: 0; }
+
+/* ================================================================== *
+ * 搜索 Tab
+ * ================================================================== */
+.fy-engine-list { list-style: none; margin: 0 0 12px; padding: 0; }
+.fy-engine-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 10px; margin: 0 0 7px;
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(177 221 188 / 55%); border-radius: 10px;
+}
+.fy-engine-item[data-fy-hidden="true"] { opacity: .55; }
+.fy-engine-item.is-fy-dragging { opacity: .4; }
+.fy-engine-item.is-fy-drop-target { box-shadow: inset 0 2px 0 0 var(--hud, #00e5b0); }
+.fy-engine-grip {
+  flex: 0 0 auto; width: 18px; text-align: center;
+  color: #6a8578; cursor: grab; user-select: none; font-size: 15px;
+}
+.fy-engine-info { flex: 1 1 auto; min-width: 0; }
+.fy-engine-name { font-weight: 600; color: #24483a; }
+.fy-engine-param { font-size: 11px; color: #6a8578; margin-left: 6px; }
+.fy-engine-readonly { font-size: 11px; color: #2f7a45; background: rgb(111 191 138 / 16%); padding: 1px 6px; border-radius: 999px; }
+.fy-engine-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; }
+.fy-engine-actions .fy-btn { padding: 4px 8px; font-size: 12px; }
+
+/* ================================================================== *
+ * 背景 Tab + 必应每日壁纸卡片
+ * ================================================================== */
+.fy-theme-preview {
+  width: 100%; height: 92px; margin: 0 0 14px;
+  border: 1px solid rgb(177 221 188 / 85%); border-radius: 12px;
+  background: linear-gradient(135deg, #b1ddbc, #e8f5ec);
+  background-size: cover; background-position: center;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 40%);
+}
+.fy-mode-radios { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.fy-mode-radios .fy-label-inline { font-weight: 500; }
+.fy-mode-fields[disabled], .fy-mode-fields.is-fy-disabled { opacity: .42; pointer-events: none; filter: grayscale(.5); }
+
+.fy-bing-card {
+  margin: 16px 0 4px; padding: 14px;
+  background: rgb(232 245 236 / 70%);
+  border: 1px solid rgb(177 221 188 / 90%); border-radius: 14px;
+}
+.fy-bing-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; }
+.fy-bing-title { margin: 0; font-size: 15px; font-weight: 700; color: #1f5038; }
+.fy-bing-card .fy-field { margin-bottom: 10px; }
+.fy-bing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.fy-bing-status {
+  margin: 6px 0 10px; padding: 8px 10px; font-size: 12px;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 70%); border: 1px solid rgb(177 221 188 / 70%);
+  color: #356b8a;
+}
+.fy-bing-status[data-fy-state="ok"] { color: #2f7a45; }
+.fy-bing-status[data-fy-state="error"] { color: #9c332c; background: rgb(156 51 44 / 8%); border-color: rgb(156 51 44 / 30%); }
+.fy-bing-status[data-fy-state="loading"] { color: #8a6a35; }
+.fy-bing-copyright {
+  margin: 6px 0 10px; font-size: 12px; color: #4a6457; line-height: 1.5;
+  word-break: break-word;
+}
+.fy-bing-copyright a { color: #2f7a45; text-decoration: underline; }
+.fy-bing-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fy-bing-unavailable { font-size: 12px; color: #9c332c; }
+
+/* ================================================================== *
+ * 数据 Tab
+ * ================================================================== */
+.fy-data-grid { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 14px; }
+.fy-data-item { font-size: 13px; color: #2c5541; }
+.fy-data-item strong { color: #1f5038; }
+.fy-data-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.fy-import-area { margin-top: 10px; }
+.fy-import-area[hidden] { display: none; }
+.fy-copy-row { display: flex; gap: 8px; margin-top: 8px; }
+.fy-copy-row .fy-input { flex: 1 1 auto; font-family: monospace; font-size: 12px; }
+
+/* ================================================================== *
+ * 二次确认层 #fy-confirm（append 到 #fy-panel 内部，不新增根层级）
+ * ================================================================== */
+#fy-confirm {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgb(20 53 42 / 32%);
+}
+#fy-confirm[hidden] { display: none; }
+.fy-confirm-card {
+  width: min(340px, 100%);
+  padding: 20px;
+  background: #fff;
+  border: 1px solid rgb(177 221 188 / 85%); border-radius: 16px;
+  box-shadow: 0 26px 70px rgb(20 53 42 / 26%), 0 2px 8px rgb(20 53 42 / 8%);
+}
+.fy-confirm-title { margin: 0 0 8px; font-size: 16px; color: #1f5038; }
+.fy-confirm-desc { margin: 0 0 16px; font-size: 13px; color: #4a6457; line-height: 1.6; }
+.fy-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.fy-confirm-card .fy-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--hud-glow, rgb(0 229 176 / 26%)), 0 0 0 1px var(--hud, #00e5b0);
+}
+
+/* ================================================================== *
+ * 编辑条 #fy-edit-bar（append 到 body，850 层，独立于面板）
+ * ================================================================== */
+#fy-edit-bar {
+  position: fixed;
+  left: clamp(16px, 1.6vw, 28px);
+  bottom: calc(clamp(16px, 3vh, 30px) + 52px);
+  z-index: 850;
+  width: clamp(320px, 40vw, 560px);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  color: #24483a;
+  font: 14px/1.6 "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: rgb(255 255 255 / 95%);
+  border: 1px solid rgb(177 221 188 / 85%);
+  border-radius: 14px;
+  box-shadow: 0 26px 70px rgb(20 53 42 / 26%), 0 2px 8px rgb(20 53 42 / 8%);
+}
+#fy-edit-bar[hidden] { display: none; }
+.fy-edit-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.fy-edit-title { font-size: 15px; color: #1f5038; }
+.fy-edit-tip { margin: 6px 0 10px; font-size: 12px; color: #6a8578; }
+.fy-edit-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ================================================================== *
+ * 桌面图标编辑态（.fy-edit 由 FYIcons.setEditMode 切到两容器）
+ * 装饰节点由 customize.js 依据 data-fy-id 注入到 item 根节点；
+ * 下面的规则只在 customize.css 覆盖，不改 index.css 原 :hover / .is-open（P7）
+ * ================================================================== */
+.fy-edit .fy-icon-editing {
+  position: relative;
+  outline: 1px dashed var(--hud, #00e5b0);
+  outline-offset: 3px;
+  border-radius: 5px;
+}
+.fy-edit .fy-icon-editing:hover { background: rgb(0 229 176 / 8%); }
+/* 拖拽视觉反馈：dev-icons 用 fy-dragging / fy-drop-target，面板键盘排序用 is-*，两套类名都命中。
+   落点高亮用 outline 而非 box-shadow（透明底 LOGO 语汇） */
+.fy-edit .fy-icon-editing.is-fy-dragging,
+.fy-edit .fy-icon-editing.fy-dragging { opacity: .4; }
+.fy-edit .fy-icon-editing.is-fy-drop-target,
+.fy-edit .fy-icon-editing.fy-drop-target {
+  outline: 2px solid var(--hud, #00e5b0);
+  outline-offset: 2px;
+}
+.fy-edit .fy-icon-editing.is-fy-no-drop { cursor: not-allowed; }
+
+.fy-drag-handle, .fy-icon-del {
+  position: absolute; z-index: 6;
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; line-height: 1;
+  color: #1f5038;
+  background: #fff;
+  border: 1px solid rgb(177 221 188 / 95%);
+  border-radius: 50%;
+  /* 装饰节点是实心小圆，不用 box-shadow；投影用 drop-shadow 保持全站语汇 */
+  filter: drop-shadow(0 1px 3px rgb(20 53 42 / 25%));
+  padding: 0; margin: 0;
+}
+.fy-drag-handle { top: -9px; left: -9px; cursor: grab; }
+.fy-drag-handle:active { cursor: grabbing; }
+.fy-icon-del { top: -9px; right: -9px; cursor: pointer; color: #9c332c; }
+.fy-icon-del:hover { color: #fff; background: #9c332c; }
+.fy-drag-handle:focus-visible, .fy-icon-del:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--hud-glow, rgb(0 229 176 / 26%)), 0 0 0 1px var(--hud, #00e5b0);
+}
+.fy-drag-handle[tabindex]:focus { outline: none; }
+
+/* 编辑态：屏蔽图标环 hover 展开（覆盖 index.css 的 :hover / .is-open，不改原规则） */
+.fy-edit .icon-wrapper:hover .sub-icon,
+.fy-edit .icon-wrapper.is-open .sub-icon,
+.fy-edit .icon-wrapper .sub-icon {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+.fy-edit .icon-wrapper:hover::before,
+.fy-edit .icon-wrapper.is-open::before,
+.fy-edit .icon-wrapper:hover::after,
+.fy-edit .icon-wrapper.is-open::after { opacity: 0 !important; }
+/* 编辑态点击主图标不跳转由 customize.js 的捕获监听 preventDefault；这里只去掉手型误导 */
+.fy-edit .main-icon { cursor: default; }
+.fy-edit .is-fy-no-drop { cursor: not-allowed; }
+
+/* 图标加载失败兜底（02 §5.7：透明底、深墨绿、白色光晕、等宽居中） */
+.fy-icon-fallback-text {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  font: 700 clamp(18px, 1.7vw, 26px)/1 monospace;
+  color: #073b30;
+  text-shadow: 0 1px 2px #fff, 0 0 4px #fff, 0 0 8px #fff;
+  background: transparent;
+}
+
+/* ================================================================== *
+ * 两端 / 窄屏 / 减少动态效果
+ * ================================================================== */
+@media screen and (max-width: 819px) {
+  #fy-panel {
+    top: 10px; right: 10px; bottom: 10px;
+    width: calc(100% - 20px);
+    border-radius: 14px;
+    transform: translateX(calc(100% + 14px));
+  }
+  #fy-panel.is-open { transform: translateX(0); }
+  #fy-edit-bar { left: 10px; bottom: 70px; width: calc(100% - 20px); }
+}
+.fy-mobile #fy-panel {
+  top: 10px; right: 10px; bottom: 10px; left: 10px;
+  width: auto; max-height: none; border-radius: 14px;
+  transform: translateX(calc(100% + 14px));
+}
+.fy-mobile #fy-panel.is-open { transform: translateX(0); }
+/* 980px 虚拟视口：固定 px 放大控件，不用 vw（MEMORY §8 / R05） */
+.fy-mobile .fy-panel-title { font-size: 26px; }
+.fy-mobile .fy-tab { font-size: 22px; padding: 14px 6px; }
+.fy-mobile .fy-panel-body { padding: 18px 20px 30px; }
+.fy-mobile .fy-label, .fy-mobile .fy-input, .fy-mobile .fy-select,
+.fy-mobile .fy-textarea, .fy-mobile .fy-btn, .fy-mobile .fy-hint { font-size: 20px; }
+.fy-mobile .fy-input, .fy-mobile .fy-select, .fy-mobile .fy-textarea { padding: 12px 14px; }
+.fy-mobile .fy-btn { padding: 12px 20px; }
+.fy-mobile .fy-icon-item, .fy-mobile .fy-engine-item { padding: 12px; gap: 12px; }
+.fy-mobile .fy-icon-thumb { width: 48px; height: 48px; }
+.fy-mobile .fy-icon-name { font-size: 20px; }
+.fy-mobile .fy-section { font-size: 22px; }
+/* 移动端图标 Tab 由 customize.js 只渲染「请在 PC 端编辑」提示（不生成操作区 / 行列表），
+   这里无需再用 display:none 兜底 —— 全站 display:none 只保留 [hidden] 终态规则。 */
+
+@media (prefers-reduced-motion: reduce) {
+  #fy-panel, #fy-settings-btn, #fy-edit-bar, .fy-tab, .fy-btn { transition: none; animation: none; }
+  .fy-icon-item.is-fy-new { animation: none; }
+}
